@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas;
+package es.pabloab;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

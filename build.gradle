@@ -1,17 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.6'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'es.pabloab'
 version = '0.0.1-SNAPSHOT'
-description = 'Zapatillas'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = '17'
 }
 
 configurations {
@@ -25,11 +22,27 @@ repositories {
 }
 
 dependencies {
+    // ===== SPRING BOOT =====
+    // Spring Boot Starter Web (incluye validación básica)
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring Boot Starter Validation (Jakarta Validation)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring Boot Starter Cache (para @Cacheable)
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // ===== LOMBOK =====
+    // Lombok para @Data, @Builder, etc.
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // ===== TESTING =====
+    // Spring Boot Starter Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Lombok para tests
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
