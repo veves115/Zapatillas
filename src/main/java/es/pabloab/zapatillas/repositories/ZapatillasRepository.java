@@ -1,4 +1,27 @@
 package es.pabloab.zapatillas.repositories;
 
-public class ZapatillasRepository {
+import es.pabloab.zapatillas.models.Zapatilla;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface ZapatillasRepository {
+    List<Zapatilla> findAll();
+    List<Zapatilla> findAllByMarca(String marca);
+    List<Zapatilla> findAllByTipo(String tipo);
+    List<Zapatilla> findAllByMarcaAndTipo(String marca, String tipo);
+
+    Optional<Zapatilla> findById(long id);
+    Optional <Zapatilla> findByUuid(UUID uuid);
+
+    boolean existsById(long id);
+    boolean existsByUuid(UUID uuid);
+
+    Zapatilla save(Zapatilla zapatilla);
+
+    void deleteById(long id);
+    void deleteByUuid(UUID uuid);
+
+    Long nextId();
 }
