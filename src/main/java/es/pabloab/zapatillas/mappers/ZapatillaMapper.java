@@ -69,6 +69,7 @@ public class ZapatillaMapper {
                 .map(this::toResponseDto)
                 .toList();
     }
+
 }
 
 
