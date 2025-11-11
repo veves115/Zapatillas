@@ -13,7 +13,7 @@ public interface ZapatillasRepository {
     List<Zapatilla> findAllByMarcaAndTipo(String marca, String tipo);
 
     Optional<Zapatilla> findById(long id);
-    Optional <Zapatilla> findByUuid(UUID uuid);
+    Zapatilla findByUuid(UUID uuid);
 
     boolean existsById(long id);
     boolean existsByUuid(UUID uuid);

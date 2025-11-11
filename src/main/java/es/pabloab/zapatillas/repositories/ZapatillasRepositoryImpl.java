@@ -75,7 +75,7 @@ public class ZapatillasRepositoryImpl implements ZapatillasRepository {
     }
 
     @Override
-    public Optional<Zapatilla> findByUuid(UUID uuid) {
+    public Zapatilla findByUuid(UUID uuid) {
         log.info("Buscando zapatillas por uuid: {}",uuid);
         return zapatillas.values().stream().filter(z -> z.getUuid().equals(uuid)).findFirst();
     }

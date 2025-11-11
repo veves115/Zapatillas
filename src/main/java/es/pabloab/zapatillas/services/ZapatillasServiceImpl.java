@@ -3,16 +3,20 @@ package es.pabloab.zapatillas.services;
 import es.pabloab.zapatillas.dto.ZapatillaCreateDto;
 import es.pabloab.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.exceptions.ZapatillaNotFoundException;
+import es.pabloab.zapatillas.exceptions.ZapatillaBadUuidException;
 import es.pabloab.zapatillas.mappers.ZapatillaMapper;
+import es.pabloab.zapatillas.models.Zapatilla;
 import es.pabloab.zapatillas.repositories.ZapatillasRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @CacheConfig(cacheNames = {"zapatillas"})
 @Service
@@ -39,36 +43,56 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     log.info("Buscando zapatillas por marca:{} tipo:{}",marca,tipo);
     return mapper.toResponseDtoList(repository.findAllByMarcaAndTipo(marca,tipo));
     }
-    @Cacheable(key = "#id")
+
     @Override
     public ZapatillaResponseDto findById(long id) {
-        log.info("Buscando la zapatilla por id {}",id);
-
-        return mapper.toResponseDto(repository.findById(id).orElseThrow());
+        return null;
     }
 
+    @Cacheable(key = "#id")
     @Override
     public ZapatillaResponseDto findById(Long id) {
-        return null;
+        log.info("Buscando zapatillas por id:{}",id);
+        return mapper.toResponseDto(repository.findById(id).get());
     }
-
+    @Cacheable(key = "#id")
     @Override
-    public ZapatillaResponseDto findByUuid(String uuid) {
-        return null;
+    public ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException {
+        log.info("Buscando zapatilla por uuid {}",uuid);
+        try {
+            var myUUID = UUID.fromString(uuid);
+            return mapper.toResponseDto(repository.findByUuid(myUUID));
+
+        } catch (IllegalArgumentException e) {
+            throw new ZapatillaBadUuidException(uuid);
+        }
     }
 
+    @CachePut(key = "#result.id")
     @Override
     public ZapatillaResponseDto save(ZapatillaCreateDto dto) {
-        return null;
-    }
+    log.info("Guardando zapatilla:{}",dto);
 
+    Long id = repository.nextId();
+
+    Zapatilla nuevaZapatilla = mapper.toZapatilla(id,dto);
+
+    return mapper.toResponseDto(repository.save(nuevaZapatilla));
+    }
+    @CachePut(key = "#result.id")
     @Override
     public ZapatillaResponseDto update(Long id, ZapatillaUpdateDto dto) {
+        log.info("Actualizando zapatilla por id:{}",id);
+        var zapatillaActual = repository.findById(id)
+                .orElseThrow();
         return null;
     }
 
+    @CacheEvict(key = "#id")
     @Override
     public void deleteById(Long id) {
-
+    log.debug("Eliminando zapatilla por id:{}",id);
+    repository.deleteById(id);
     }
 }
+

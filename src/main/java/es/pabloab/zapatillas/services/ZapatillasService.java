@@ -3,6 +3,7 @@ package es.pabloab.zapatillas.services;
 import es.pabloab.zapatillas.dto.ZapatillaCreateDto;
 import es.pabloab.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.exceptions.ZapatillaBadUuidException;
 import es.pabloab.zapatillas.models.Zapatilla;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -15,7 +16,7 @@ public interface ZapatillasService {
     @Cacheable(key = "#id")
     ZapatillaResponseDto findById(Long id);
 
-    ZapatillaResponseDto findByUuid(String uuid);
+    ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException;
     ZapatillaResponseDto save(ZapatillaCreateDto dto);
     ZapatillaResponseDto update(Long id,ZapatillaUpdateDto dto);
     void deleteById(Long id);
