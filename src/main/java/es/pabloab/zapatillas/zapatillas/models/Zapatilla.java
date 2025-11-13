@@ -1,26 +1,25 @@
-package es.pabloab.zapatillas.dto;
+package es.pabloab.zapatillas.zapatillas.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ZapatillaResponseDto {
+public class Zapatilla {
     private Long id;
+
     private String marca;
     private String modelo;
     private String codigoProducto;
     private Double talla;
+    private Double precio;
     private String color;
     private String tipo;
-    private Double precio;
     private Integer stock;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UUID uuid;

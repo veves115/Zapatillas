@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.validators;
+package es.pabloab.zapatillas.zapatillas.validators;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

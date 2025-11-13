@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas;
+package es.pabloab.zapatillas.zapatillas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,6 +1,6 @@
-package es.pabloab.zapatillas.repositories;
+package es.pabloab.zapatillas.zapatillas.repositories;
 
-import es.pabloab.zapatillas.models.Zapatilla;
+import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

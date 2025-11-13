@@ -1,0 +1,50 @@
+### Obtener todas las zapatillas
+GET http://localhost:8080/api/v1/zapatillas
+Accept: application/json
+
+### Obtener zapatilla por id
+GET http://localhost:8080/api/v1/zapatillas/2
+Accept: application/json
+
+### Crear nueva zapatilla
+POST http://localhost:8080/api/v1/zapatillas
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Air Zoom",
+  "marca": "Nike",
+  "tipo": "Running",
+  "precio": 129.99,
+  "stock": 10,
+  "descripcion": "Zapatilla ligera para correr"
+}
+
+### Actualizar zapatilla (PUT)
+PUT http://localhost:8080/api/v1/zapatillas/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Air Zoom Modificada",
+  "marca": "Nike",
+  "tipo": "Running",
+  "precio": 139.99,
+  "stock": 12,
+  "descripcion": "Actualización completa de la zapatilla"
+}
+
+### Actualización parcial de zapatilla (PATCH)
+PATCH http://localhost:8080/api/v1/zapatillas/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "precio": 119.99,
+  "stock": 8
+}
+
+### Eliminar zapatilla
+DELETE http://localhost:8080/api/v1/zapatillas/1
+Accept: application/json
+

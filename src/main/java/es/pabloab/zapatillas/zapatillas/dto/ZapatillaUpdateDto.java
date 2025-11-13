@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.dto;
+package es.pabloab.zapatillas.zapatillas.dto;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -25,5 +25,5 @@ public class ZapatillaUpdateDto {
     private final Double precio;
 
     @Min(value = 0, message = "El stock no puede ser negativo")
-    private final Double stock;
+    private final Integer stock;
 }

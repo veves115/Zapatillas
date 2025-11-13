@@ -1,9 +1,9 @@
-package es.pabloab.zapatillas.mappers;
+package es.pabloab.zapatillas.zapatillas.mappers;
 
-import es.pabloab.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.models.Zapatilla;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

@@ -1,10 +1,11 @@
-package es.pabloab.zapatillas.controllers;
+package es.pabloab.zapatillas.zapatillas.controllers;
 
 
-import es.pabloab.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.services.ZapatillasService;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.zapatillas.exceptions.ZapatillaNotFoundException;
+import es.pabloab.zapatillas.zapatillas.services.ZapatillasService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class ZapatillasRestController {
         return ResponseEntity.ok(service.findAll(marca, tipo));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ZapatillaResponseDto> getById(@PathVariable Long id){
+    public ResponseEntity<ZapatillaResponseDto> getById(@PathVariable Long id) throws ZapatillaNotFoundException {
         log.info("Buscando zapatilla por id={}", id);
         return ResponseEntity.ok(service.findById(id));
     }
@@ -49,15 +50,15 @@ public class ZapatillasRestController {
     @PutMapping("/{id}")
     public ResponseEntity<ZapatillaResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody ZapatillaUpdateDto dto) {
+            @Valid @RequestBody ZapatillaUpdateDto dto) throws ZapatillaNotFoundException {
         log.info("Actualizando zapatilla id={} con datos={}", id, dto);
         return ResponseEntity.ok(service.update(id, dto));
     }
     @PatchMapping("/{id}")
     public ResponseEntity<ZapatillaResponseDto> updatePartial(@PathVariable Long id, @Valid @RequestBody
-    ZapatillaUpdateDto dto){
+    ZapatillaUpdateDto dto) throws ZapatillaNotFoundException {
         log.info("Actualizando parcialmente zapatilla id={}",id);
-        return ResponseEntity.ok(service.update(id, dto));
+        return ResponseEntity.ok(service.update (id, dto));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ZapatillaResponseDto> delete(@PathVariable Long id){

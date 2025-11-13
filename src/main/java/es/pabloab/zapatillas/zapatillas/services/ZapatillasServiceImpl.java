@@ -1,12 +1,12 @@
-package es.pabloab.zapatillas.services;
+package es.pabloab.zapatillas.zapatillas.services;
 
-import es.pabloab.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.exceptions.ZapatillaBadUuidException;
-import es.pabloab.zapatillas.mappers.ZapatillaMapper;
-import es.pabloab.zapatillas.models.Zapatilla;
-import es.pabloab.zapatillas.repositories.ZapatillasRepository;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.zapatillas.exceptions.ZapatillaBadUuidException;
+import es.pabloab.zapatillas.zapatillas.mappers.ZapatillaMapper;
+import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
+import es.pabloab.zapatillas.zapatillas.repositories.ZapatillasRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;

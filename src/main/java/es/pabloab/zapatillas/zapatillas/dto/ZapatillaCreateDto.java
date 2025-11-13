@@ -1,6 +1,6 @@
-package es.pabloab.zapatillas.dto;
+package es.pabloab.zapatillas.zapatillas.dto;
 
-import es.pabloab.zapatillas.validators.CodigoProducto;
+import es.pabloab.zapatillas.zapatillas.validators.CodigoProducto;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
@@ -30,11 +30,11 @@ public class ZapatillaCreateDto {
             message = "El tipo debe de ser: Running, Basketball, Training, Casual o Trail")
     private final String tipo;
 
-    @NotBlank(message = "El precio no puede estar vacío")
+    @NotNull(message = "El precio no puede estar vacío")
     @DecimalMin(value = "0.01", message = "El precio debe ser mayor a 0")
     private final Double precio;
 
-    @NotBlank(message = "El stock no puede estar vacío")
+    @NotNull(message = "El stock no puede estar vacío")
     @Min(value = 0, message = "El stock no puede ser negativo")
     private final Integer stock;
 
