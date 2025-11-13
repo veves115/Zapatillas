@@ -65,7 +65,8 @@ public class ZapatillasRepositoryImpl implements ZapatillasRepository {
     @Override
     public List<Zapatilla> findAllByMarcaAndTipo(String marca, String tipo) {
         log.info("Buscando todas las zapatillas por marca: {} y tipo:{}", marca, tipo);
-        return zapatillas.values().stream().filter(z -> z.getMarca().toLowerCase().contains(marca.toLowerCase())).toList();
+        return zapatillas.values().stream().filter(z -> z.getMarca().toLowerCase().contains(marca.toLowerCase()))
+                .filter(z-> z.getTipo().toLowerCase().contains(tipo.toLowerCase())).toList();
     }
 
     @Override
@@ -77,7 +78,7 @@ public class ZapatillasRepositoryImpl implements ZapatillasRepository {
     @Override
     public Zapatilla findByUuid(UUID uuid) {
         log.info("Buscando zapatillas por uuid: {}",uuid);
-        return zapatillas.values().stream().filter(z -> z.getUuid().equals(uuid)).findFirst();
+        return zapatillas.values().stream().filter(z -> z.getUuid().equals(uuid)).findFirst().orElse(null);
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ZapatillasRepositoryImpl implements ZapatillasRepository {
     @Override
     public boolean existsByUuid(UUID uuid) {
         log.info("Comprobando si existe la zapatilla por uuid: {}",uuid);
-        return zapatillas.containsKey(uuid);
+        return zapatillas.values().stream().anyMatch(z -> z.getUuid().equals(uuid));
     }
 
     @Override
