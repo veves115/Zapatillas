@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verify;
     }
     @Test
     void findAllFiltraPorMarca(){
-        given(repository.findAllByMarca()).willReturn(List.of(zapatillaBase));
+        given(repository.findAllByMarca("Nike")).willReturn(List.of(zapatillaBase));
         List<ZapatillaResponseDto> resultado = service.findAll("Nike",null);
         assertThat(resultado).hasSize(1);
         verify(repository).findAllByMarca("Nike");

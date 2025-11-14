@@ -30,6 +30,7 @@ dependencies {
 
     // Spring Boot Starter Cache (para @Cacheable)
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // ===== LOMBOK =====
     // Lombok para @Data, @Builder, etc.
