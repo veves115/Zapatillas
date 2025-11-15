@@ -1,6 +1,7 @@
 package es.pabloab.zapatillas.mappers;
 
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
 import es.pabloab.zapatillas.zapatillas.mappers.ZapatillaMapper;
 import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -156,6 +158,158 @@ class ZapatillaMapperTest {
                 .precio(150.0)
                 .stock(5)
                 .build();
+
+        Zapatilla resultado = mapper.toZapatilla(dto,existente);
+        assertThat(resultado.getPrecio()).isEqualTo(150.0);
+        assertThat(resultado.getStock()).isEqualTo(5);
+        assertThat(resultado.getTalla()).isEqualTo(42.0);
+        assertThat(resultado.getColor()).isEqualTo("Negro");
+        assertThat(resultado.getTipo()).isEqualTo("Running");
+        assertThat(resultado.getCodigoProducto()).isEqualTo("NI1234KE");
     }
+    @Test
+    @DisplayName("No se debe actualizar marca ni modelo(campos protegidos)")
+        void toZapatilla_noActualizaMarcaNiModelo(){
+        Zapatilla existente = Zapatilla.builder()
+                .id(1L)
+                .marca("Nike")
+                .modelo("Air")
+                .codigoProducto("NI1234KE")
+                .talla(42.0)
+                .color("Negro")
+                .tipo("Running")
+                .precio(100.0)
+                .stock(10)
+                .uuid(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        ZapatillaUpdateDto dto = ZapatillaUpdateDto.builder()
+                .precio(200.00)
+                .build();
+
+        Zapatilla resultado = mapper.toZapatilla(dto,existente);
+        assertThat(resultado.getMarca()).isEqualTo("Nike");
+        assertThat(resultado.getModelo()).isEqualTo("Air");
+    }
+    @Test
+    @DisplayName("Debe mantener createdAt pero actualizar UpdatedAt")
+        void toZapatilla_mantieneCreatedAtActualizaUpdatedAt() throws InterruptedException {
+        LocalDateTime createdOriginal = LocalDateTime.now().minusDays(1);
+        LocalDateTime updatedOriginal = LocalDateTime.now().minusHours(2);
+
+        Zapatilla existente = Zapatilla.builder()
+                .id(1L)
+                .marca("Nike")
+                .modelo("Air")
+                .codigoProducto("NI1234KE")
+                .talla(42.0)
+                .color("Negro")
+                .tipo("Running")
+                .precio(100.0)
+                .stock(5)
+                .uuid(UUID.randomUUID())
+                .createdAt(createdOriginal)
+                .updatedAt(updatedOriginal)
+                .build();
+
+        ZapatillaUpdateDto dto = ZapatillaUpdateDto.builder()
+                .precio(150.00)
+                .build();
+
+        Thread.sleep(100);
+        Zapatilla resultado = mapper.toZapatilla(dto,existente);
+        assertThat(resultado.getCreatedAt()).isEqualTo(createdOriginal);
+        assertThat(resultado.getUpdatedAt()).isAfter(updatedOriginal);
+    }
+    }
+    @Nested
+    @DisplayName("toResponseDto(Zapatilla)")
+    class ModeltoResponseDtoTest{
+        @Test
+        @DisplayName("Debe mapear todos los campos del modelo al Dto")
+        void toResponseDto_mapeaTodosCampos(){
+            Zapatilla zapatilla = Zapatilla.builder()
+                    .id(1L)
+                    .marca("Nike")
+                    .modelo("Air")
+                    .codigoProducto("NI1234KE")
+                    .talla(42.0)
+                    .color("Negro")
+                    .tipo("Running")
+                    .precio(129.99)
+                    .stock(10)
+                    .uuid(UUID.randomUUID())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+
+            ZapatillaResponseDto dto = mapper.toResponseDto(zapatilla);
+            assertThat(dto.getId()).isEqualTo(zapatilla.getId());
+            assertThat(dto.getMarca()).isEqualTo(zapatilla.getMarca());
+            assertThat(dto.getModelo()).isEqualTo(zapatilla.getModelo());
+            assertThat(dto.getCodigoProducto()).isEqualTo(zapatilla.getCodigoProducto());
+            assertThat(dto.getTalla()).isEqualTo(zapatilla.getTalla());
+            assertThat(dto.getColor()).isEqualTo(zapatilla.getColor());
+            assertThat(dto.getTipo()).isEqualTo(zapatilla.getTipo());
+            assertThat(dto.getPrecio()).isEqualTo(zapatilla.getPrecio());
+            assertThat(dto.getStock()).isEqualTo(zapatilla.getStock());
+            assertThat(dto.getUuid()).isEqualTo(zapatilla.getUuid());
+            assertThat(dto.getCreatedAt()).isEqualTo(zapatilla.getCreatedAt());
+            assertThat(dto.getUpdatedAt()).isEqualTo(zapatilla.getUpdatedAt());
+        }
+    }
+    @Nested
+    @DisplayName("toResponseDto(List<Zapatilla>)")
+    class ListtoListDtoTests{
+
+        @Test
+        @DisplayName("Lista vacía debe devolver lista vacía")
+        void toResponseDtoList_listaVacia(){
+            List<Zapatilla> lista = List.of();
+            List<ZapatillaResponseDto> resultado = mapper.toResponseDtoList(lista);
+            assertThat(resultado).isEmpty();
+        }
+        @Test
+        @DisplayName("Debe mapear todos los elementos de la lista")
+        void toResponseDtoList_mapeaTodasLasZapatillas(){
+            Zapatilla z1 = crearZapatilla(1L,"Nike");
+            Zapatilla z2 = crearZapatilla(2L, "Adidas");
+            Zapatilla z3 = crearZapatilla(3L, "Puma");
+
+            List<Zapatilla> lista = List.of(z1, z2, z3);
+            List<ZapatillaResponseDto> resultado = mapper.toResponseDtoList(lista);
+            assertThat(resultado).hasSize(3);
+            assertThat(resultado.get(0).getId()).isEqualTo(z1.getId());
+            assertThat(resultado.get(0).getMarca()).isEqualTo(z1.getMarca());
+            assertThat(resultado.get(0).getModelo()).isEqualTo(z1.getModelo());
+        }
+        @Test
+        @DisplayName("El orden de la lista debe mantenerse")
+        void toResponseDtoList_mantieneOrden(){
+            List<Zapatilla> lista = List.of(
+                    crearZapatilla(3L,"Puma"),
+                    crearZapatilla(1L,"Nike"),
+                    crearZapatilla(2l,"Adidas")
+            );
+            List<ZapatillaResponseDto> resultado = mapper.toResponseDtoList(lista);
+            assertThat(resultado).extracting(ZapatillaResponseDto::getId).containsExactly(3L,1L,2L);
+        }
+        //Método para crear zapatillas de prueba
+        private Zapatilla crearZapatilla(Long id, String marca){
+            return Zapatilla.builder()
+                    .id(id)
+                    .marca(marca)
+                    .modelo("Modelo" + id)
+                    .codigoProducto("Producto" + id)
+                    .tipo("Tipo" + id)
+                    .precio(100.0)
+                    .stock(10)
+                    .uuid(UUID.randomUUID())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+        }
     }
 }
