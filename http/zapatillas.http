@@ -3,7 +3,7 @@ GET http://localhost:8080/api/v1/zapatillas
 Accept: application/json
 
 ### Obtener zapatilla por id
-GET http://localhost:8080/api/v1/zapatillas/2
+GET http://localhost:8080/api/v1/zapatillas/1
 Accept: application/json
 
 ### Crear nueva zapatilla

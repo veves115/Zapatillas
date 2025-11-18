@@ -44,10 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
     private ZapatillasService service;
 
     private ZapatillaResponseDto responseDto;
-    private ZapatillaCreateDto createDto;
     private ZapatillaUpdateDto updateDto;
-    @Autowired
-    private Mod11CheckValidator mod11CheckValidator;
 
     @BeforeEach
     void setUp() {
@@ -64,17 +61,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .uuid(UUID.randomUUID())
-                .build();
-
-        createDto = ZapatillaCreateDto.builder()
-                .marca("Nike")
-                .modelo("Air Max 90")
-                .codigoProducto("NI1234KE")
-                .talla(42.0)
-                .color("Blanco")
-                .tipo("Running")
-                .precio(129.99)
-                .stock(10)
                 .build();
 
         updateDto = ZapatillaUpdateDto.builder()

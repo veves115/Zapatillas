@@ -46,14 +46,16 @@ public class ZapatillasServiceImpl implements ZapatillasService {
 
     @Override
     public ZapatillaResponseDto findById(long id) {
-        return null;
+        log.info("Buscando zapatillas por id:{}",id);
+        return mapper.toResponseDto(repository.findById(id)
+                .orElseThrow(() -> new java.util.NoSuchElementException("Zapatilla no encontrada con id: " + id)));
     }
-
     @Cacheable(key = "#id")
     @Override
     public ZapatillaResponseDto findById(Long id) {
         log.info("Buscando zapatillas por id:{}",id);
-        return mapper.toResponseDto(repository.findById(id).get());
+        return mapper.toResponseDto(repository.findById(id)
+                .orElseThrow(() -> new java.util.NoSuchElementException("Zapatilla no encontrada con id: " + id)));
     }
     @Cacheable(key = "#id")
     @Override
@@ -85,7 +87,8 @@ public class ZapatillasServiceImpl implements ZapatillasService {
         log.info("Actualizando zapatilla por id:{}",id);
         var zapatillaActual = repository.findById(id)
                 .orElseThrow();
-        return null;
+        var zapatillaActualizada = mapper.toZapatilla(dto,zapatillaActual);
+        return mapper.toResponseDto(repository.save(zapatillaActualizada));
     }
 
     @CacheEvict(key = "#id")

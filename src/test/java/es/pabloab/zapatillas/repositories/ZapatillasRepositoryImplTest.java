@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
      @Test
      void findByIdDevuelveOptional(){
          assertThat(repository.findById(1L).isPresent()).isTrue();
-         assertThat(repository.findById(19999L).isEmpty()).isFalse();
+         assertThat(repository.findById(19999L).isEmpty()).isTrue();
      }
      @Test
      void findByUuidDevuelveElementoCuandoExiste(){
