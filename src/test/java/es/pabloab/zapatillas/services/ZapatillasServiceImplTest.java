@@ -29,8 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests de ZapatillasService")
@@ -181,6 +180,83 @@ import static org.mockito.Mockito.verify;
             verify(repository,never()).findByUuid(any(UUID.class));
         }
         @Test
+        @DisplayName("Debe devolver null cuando el UUID sea válido pero no exista")
+        void findByUuidValidoPeroNoExiste() throws ZapatillaBadUuidException {
+            String uuid = UUID.randomUUID().toString();
+            given(repository.findByUuid(any(UUID.class))).willReturn(null);
+            ZapatillaResponseDto resultado = service.findByUuid(uuid);
+            assertThat(resultado).isNull();
+        }
+        @Nested
+        @DisplayName("save()")
+        class SaveTests{
+
+            @Test
+            @DisplayName("Debe crear zapatilla con ID del repository")
+            void saveZapatillaNueva(){
+                given(repository.nextId()).willReturn(1L);
+                given(repository.save(any(Zapatilla.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+                ZapatillaResponseDto resultado = service.save(createDto);
+
+                assertThat(resultado).isNotNull();
+                assertThat(resultado.getId()).isEqualTo(1L);
+                assertThat(resultado.getMarca()).isEqualTo(createDto.getMarca());
+
+                verify(repository).nextId();
+                verify(repository).save(any(Zapatilla.class));
+            }
+            @Test
+            @DisplayName("Debe generar UUID automáticamente")
+            void saveGeneraUuid(){
+                given(repository.nextId()).willReturn(1L);
+                given(repository.save(any(Zapatilla.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+                ZapatillaResponseDto resultado = service.save(createDto);
+                assertThat(resultado.getUuid()).isNotNull();
+                assertThat(resultado.getCreatedAt()).isNotNull();
+                assertThat(resultado.getUpdatedAt()).isNotNull();
+            }
+        }
+        @Nested
+        @DisplayName("update()")
+        class UpdateTests{
+
+            @Test
+            @DisplayName("Debe actualizar zapatilla existente")
+            void updateZapatillaExiste(){
+                given(repository.findById(1L)).willReturn(Optional.of(zapatillaBase));
+                given(repository.save(any(Zapatilla.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+                ZapatillaResponseDto resultado = service.update(1L,updateDto);
+
+                assertThat(resultado).isNotNull();
+                assertThat(resultado.getPrecio()).isEqualTo(149.99);
+                assertThat(resultado.getStock()).isEqualTo(20);
+
+                verify(repository).findById(1L);
+                verify(repository).save(any(Zapatilla.class));
+            }
+            @Test
+            @DisplayName("Debe lanzar excepción si no existe")
+            void updateZapatillaNoExiste(){
+                given(repository.findById(9999L)).willReturn(Optional.empty());
+                assertThatThrownBy(() -> service.update(9999L,updateDto)).isInstanceOf(NoSuchElementException.class);
+                verify(repository,never()).save(any(Zapatilla.class));
+            }
+        }
+        @Nested
+        @DisplayName("deleteById()")
+        class DeleteByIdTests{
+
+            @Test
+            @DisplayName("Debe eliminar zapatilla")
+            void deleteByIdZapatillaExiste(){
+                doNothing().when(repository).deleteById(1L);
+                service.deleteById(1L);
+                verify(repository).deleteById(1L);
+            }
+        }
     }
 
 }
