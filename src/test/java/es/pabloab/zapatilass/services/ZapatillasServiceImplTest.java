@@ -156,7 +156,6 @@ class ZapatillasServiceImplTest {
     @Nested
     @DisplayName("findByUuid()")
     class findByUuidTests{
-
         @Test
         @DisplayName("Debe devolver DTO cuando UUID válido no existe")
         void findByUuidValidoYExiste() throws ZapatillaBadUuidException {

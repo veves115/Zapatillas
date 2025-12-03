@@ -28,41 +28,44 @@ public class ZapatillasServiceImpl implements ZapatillasService {
 
     @Override
     public List<ZapatillaResponseDto> findAll(String marca, String tipo) {
-        if(marca == null || marca.trim().isEmpty() || tipo == null || tipo.trim().isEmpty()) {
+        boolean sinMarca = (marca == null || marca.trim().isEmpty());
+        boolean sinTipo = (tipo == null || tipo.trim().isEmpty());
+
+        if (sinMarca && sinTipo) {
             log.info("Buscando todas las zapatillas");
             return mapper.toResponseDtoList(repository.findAll());
         }
-        if((marca != null && !marca.isEmpty()) && (tipo != null && !tipo.isEmpty())) {
-            log.info("Buscando todas las zapatillas por marca:{}",marca);
+        if (!sinMarca && sinTipo) {
+            log.info("Buscando todas las zapatillas por marca: {}", marca);
             return mapper.toResponseDtoList(repository.findAllByMarca(marca));
         }
-        if(marca == null || marca.trim().isEmpty()) {
-            log.info("Buscando todas las zapatillas por tipo:{}",tipo);
+        if (sinMarca) {
+            log.info("Buscando todas las zapatillas por tipo: {}", tipo);
             return mapper.toResponseDtoList(repository.findAllByTipo(tipo));
         }
-        log.info("Buscando zapatillas por marca:{} tipo:{}",marca,tipo);
-        return mapper.toResponseDtoList(repository.findAllByMarcaAndTipo(marca,tipo));
-    }
-
-    @Override
-    public ZapatillaResponseDto findById(long id) {
-        return null;
+        log.info("Buscando zapatillas por marca: {} y tipo: {}", marca, tipo);
+        return mapper.toResponseDtoList(repository.findAllByMarcaAndTipo(marca, tipo));
     }
 
     @Cacheable(key = "#id")
     @Override
     public ZapatillaResponseDto findById(Long id) {
-        log.info("Buscando zapatillas por id:{}",id);
-        return mapper.toResponseDto(repository.findById(id).get());
+        log.info("Buscando zapatillas por id: {}", id);
+        return mapper.toResponseDto(
+                repository.findById(id).orElseThrow()
+        );
     }
-    @Cacheable(key = "#id")
+    @Cacheable(key = "#uuid")
     @Override
     public ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException {
-        log.info("Buscando zapatilla por uuid {}",uuid);
+        log.info("Buscando zapatilla por uuid {}", uuid);
         try {
             var myUUID = UUID.fromString(uuid);
-            return mapper.toResponseDto(repository.findByUuid(myUUID));
-
+            var zapatilla = repository.findByUuid(myUUID);
+            if (zapatilla == null) {
+                return null;
+            }
+            return mapper.toResponseDto(zapatilla);
         } catch (IllegalArgumentException e) {
             throw new ZapatillaBadUuidException(uuid);
         }
@@ -71,21 +74,26 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     @CachePut(key = "#result.id")
     @Override
     public ZapatillaResponseDto save(ZapatillaCreateDto dto) {
-        log.info("Guardando zapatilla:{}",dto);
+        log.info("Guardando zapatilla: {}", dto);
 
         Long id = repository.nextId();
 
-        Zapatilla nuevaZapatilla = mapper.toZapatilla(id,dto);
+        Zapatilla nuevaZapatilla = mapper.toZapatilla(id, dto);
 
         return mapper.toResponseDto(repository.save(nuevaZapatilla));
     }
     @CachePut(key = "#result.id")
     @Override
     public ZapatillaResponseDto update(Long id, ZapatillaUpdateDto dto) {
-        log.info("Actualizando zapatilla por id:{}",id);
-        var zapatillaActual = repository.findById(id)
+        log.info("Actualizando zapatilla por id: {}", id);
+        Zapatilla zapatillaActual = repository.findById(id)
                 .orElseThrow();
-        return null;
+
+        Zapatilla zapatillaActualizada = mapper.toZapatilla(dto, zapatillaActual);
+
+        Zapatilla guardada = repository.save(zapatillaActualizada);
+
+        return mapper.toResponseDto(guardada);
     }
 
     @CacheEvict(key = "#id")
