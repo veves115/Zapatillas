@@ -1,0 +1,29 @@
+package es.pabloab.zapatilass.config.websockets;
+
+
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+    @Value("${api.version}")
+    private String apiVersion;
+
+    // Registra uno por cada tipo de notificación que quieras con su handler y su ruta (endpoint)
+    // Cuidado con la ruta que no se repita
+    // Para conectar con el cliente, el cliente debe hacer una petición de conexión
+    // ws://localhost:3000/ws/v1/tarjetas
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(webSocketTarjetasHandler(), "/ws/" + apiVersion + "/zapatillas");
+    }
+
+    // Cada uno de los handlers como bean para que cada vez que nos atienda
+    @Bean
+    public WebSocketHandler webSocketTarjetasHandler() {
+        return new WebSocketHandler("Tarjetas");
+    }
+}
