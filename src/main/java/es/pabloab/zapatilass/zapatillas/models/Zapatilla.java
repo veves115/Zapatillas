@@ -1,26 +1,42 @@
 package es.pabloab.zapatilass.zapatillas.models;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Builder
+@Entity
+@Table(name = "zapatillas")
 @Data
-public class Zapatilla {
-    private Long id;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 
+public class Zapatilla {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false,length = 50)
     private String marca;
+    @Column(nullable = false,length = 50)
     private String modelo;
+    @Column(unique = true,nullable = false,length = 10)
     private String codigoProducto;
-    private Double talla;
-    private Double precio;
+    @Column(nullable = false)
+    private String talla;
+    @Column(nullable = false,length = 50)
     private String color;
+    @Column(nullable = false,length = 20)
     private String tipo;
+    @Column(nullable = false)
+    private Integer precio;
+    @Column(nullable = false)
     private Integer stock;
 
-    private LocalDateTime createdAt;
+    @CreationTimeStamp
+    @Column(updatable = false,nullable = false)
     private LocalDateTime updatedAt;
-    private UUID uuid;
 }
