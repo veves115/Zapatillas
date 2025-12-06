@@ -9,10 +9,9 @@ public record ZapatillaNotificationResponse(
         Double precio,
         String color,
         String tipo,
-        Integer stock
-
+        Integer stock,
         String createdAt,
         String updatedAt,
-        String uuid,
-        String string) {
+        String uuid
+) {
 }

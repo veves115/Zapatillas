@@ -6,6 +6,7 @@ import es.pabloab.zapatilass.zapatillas.dto.ZapatillaUpdateDto;
 import es.pabloab.zapatilass.zapatillas.exceptions.ZapatillaBadUuidException;
 import es.pabloab.zapatilass.zapatillas.mappers.ZapatillaMapper;
 import es.pabloab.zapatilass.zapatillas.models.Zapatilla;
+import es.pabloab.zapatilass.zapatillas.models.ZapatillaChangeEvent;
 import es.pabloab.zapatilass.zapatillas.repositories.ZapatillasRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,10 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class ZapatillasServiceImpl implements ZapatillasService {
     private final ZapatillasRepository repository;
     private final ZapatillaMapper mapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<ZapatillaResponseDto> findAll(String marca, String tipo) {
@@ -62,10 +66,10 @@ public class ZapatillasServiceImpl implements ZapatillasService {
         try {
             var myUUID = UUID.fromString(uuid);
             var zapatilla = repository.findByUuid(myUUID);
-            if (zapatilla == null) {
+            if (zapatilla.isEmpty()) {
                 return null;
             }
-            return mapper.toResponseDto(zapatilla);
+            return mapper.toResponseDto(zapatilla.get());
         } catch (IllegalArgumentException e) {
             throw new ZapatillaBadUuidException(uuid);
         }
@@ -76,11 +80,23 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     public ZapatillaResponseDto save(ZapatillaCreateDto dto) {
         log.info("Guardando zapatilla: {}", dto);
 
-        Long id = repository.nextId();
+        Zapatilla nuevaZapatilla = mapper.toZapatilla(dto);
+        
+        // Establecer campos automáticos
+        if (nuevaZapatilla.getUuid() == null) {
+            nuevaZapatilla.setUuid(UUID.randomUUID());
+        }
+        if (nuevaZapatilla.getCreatedAt() == null) {
+            nuevaZapatilla.setCreatedAt(LocalDateTime.now());
+        }
+        nuevaZapatilla.setUpdatedAt(LocalDateTime.now());
 
-        Zapatilla nuevaZapatilla = mapper.toZapatilla(id, dto);
+        Zapatilla guardada = repository.save(nuevaZapatilla);
+        
+        // Publicar evento de creación
+        eventPublisher.publishEvent(new ZapatillaChangeEvent(guardada, ZapatillaChangeEvent.ChangeType.CREATE));
 
-        return mapper.toResponseDto(repository.save(nuevaZapatilla));
+        return mapper.toResponseDto(guardada);
     }
     @CachePut(key = "#result.id")
     @Override
@@ -90,8 +106,14 @@ public class ZapatillasServiceImpl implements ZapatillasService {
                 .orElseThrow();
 
         Zapatilla zapatillaActualizada = mapper.toZapatilla(dto, zapatillaActual);
+        
+        // Actualizar fecha de modificación
+        zapatillaActualizada.setUpdatedAt(LocalDateTime.now());
 
         Zapatilla guardada = repository.save(zapatillaActualizada);
+        
+        // Publicar evento de actualización
+        eventPublisher.publishEvent(new ZapatillaChangeEvent(guardada, ZapatillaChangeEvent.ChangeType.UPDATE));
 
         return mapper.toResponseDto(guardada);
     }
@@ -99,8 +121,16 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     @CacheEvict(key = "#id")
     @Override
     public void deleteById(Long id) {
-        log.debug("Eliminando zapatilla por id:{}",id);
+        log.debug("Eliminando zapatilla por id:{}", id);
+        
+        // Obtener la zapatilla antes de eliminarla para publicar el evento
+        Zapatilla zapatilla = repository.findById(id)
+                .orElseThrow();
+        
         repository.deleteById(id);
+        
+        // Publicar evento de eliminación
+        eventPublisher.publishEvent(new ZapatillaChangeEvent(zapatilla, ZapatillaChangeEvent.ChangeType.DELETE));
     }
 }
 

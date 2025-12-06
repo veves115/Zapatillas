@@ -7,15 +7,12 @@ import es.pabloab.zapatilass.zapatillas.dto.ZapatillaUpdateDto;
 import es.pabloab.zapatilass.zapatillas.models.Zapatilla;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class ZapatillaMapper {
-    public Zapatilla toZapatilla(Long id, ZapatillaCreateDto dto) {
+    public Zapatilla toZapatilla(ZapatillaCreateDto dto) {
         return Zapatilla.builder()
-                .id(id)
                 .marca(dto.getMarca())
                 .modelo(dto.getModelo())
                 .codigoProducto(dto.getCodigoProducto())
@@ -24,9 +21,7 @@ public class ZapatillaMapper {
                 .tipo(dto.getTipo())
                 .precio(dto.getPrecio())
                 .stock(dto.getStock())
-                .uuid(UUID.randomUUID())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                // El UUID, createdAt y updatedAt se establecerán en el servicio
                 .build();
     }
     public Zapatilla toZapatilla(ZapatillaUpdateDto dto, Zapatilla zapatilla) {
@@ -45,8 +40,9 @@ public class ZapatillaMapper {
                 .precio(dto.getPrecio() != null ?
                         dto.getPrecio() : zapatilla.getPrecio())
                 .createdAt(zapatilla.getCreatedAt())
-                .updatedAt(LocalDateTime.now())
+                .updatedAt(zapatilla.getUpdatedAt()) // Se actualizará en el servicio
                 .uuid(zapatilla.getUuid())
+                .stock(dto.getStock() != null ? dto.getStock() : zapatilla.getStock())
                 .build();
     }
     public ZapatillaResponseDto toResponseDto(Zapatilla zapatilla) {

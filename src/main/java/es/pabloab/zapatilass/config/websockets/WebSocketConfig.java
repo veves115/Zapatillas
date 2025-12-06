@@ -1,10 +1,11 @@
 package es.pabloab.zapatilass.config.websockets;
 
-
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
 @EnableWebSocket
@@ -24,6 +25,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     // Cada uno de los handlers como bean para que cada vez que nos atienda
     @Bean
     public WebSocketHandler webSocketTarjetasHandler() {
-        return new WebSocketHandler("Tarjetas");
+        return new WebSocketHandler("Zapatillas");
     }
 }

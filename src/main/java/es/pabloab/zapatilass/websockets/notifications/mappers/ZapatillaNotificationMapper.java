@@ -17,9 +17,9 @@ public class ZapatillaNotificationMapper {
                 zapatilla.getColor(),
                 zapatilla.getTipo(),
                 zapatilla.getStock(),
-                zapatilla.getCreatedAt().toString(),
-                zapatilla.getUpdatedAt().toString(),
-                zapatilla.getUuid().toString()
+                zapatilla.getCreatedAt() != null ? zapatilla.getCreatedAt().toString() : null,
+                zapatilla.getUpdatedAt() != null ? zapatilla.getUpdatedAt().toString() : null,
+                zapatilla.getUuid() != null ? zapatilla.getUuid().toString() : null
         );
     }
 }
