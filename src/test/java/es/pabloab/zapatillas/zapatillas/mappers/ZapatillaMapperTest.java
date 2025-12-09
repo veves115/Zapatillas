@@ -35,9 +35,9 @@ class ZapatillaMapperTest {
                     .stock(5)
                     .build();
 
-            Zapatilla zapatilla = mapper.toZapatilla(dto);
+            Zapatilla zapatilla = mapper.toZapatilla(null, dto);
 
-            assertThat(zapatilla.getId()).isEqualTo(10L);
+            assertThat(zapatilla.getId()).isNull();
             assertThat(zapatilla.getMarca()).isEqualTo(dto.getMarca());
             assertThat(zapatilla.getModelo()).isEqualTo(dto.getModelo());
             assertThat(zapatilla.getCodigoProducto()).isEqualTo(dto.getCodigoProducto());
@@ -65,8 +65,8 @@ class ZapatillaMapperTest {
                     .stock(10)
                     .build();
 
-            Zapatilla z1 = mapper.toZapatilla(dto);
-            Zapatilla z2 = mapper.toZapatilla(dto);
+            Zapatilla z1 = mapper.toZapatilla(null, dto);
+            Zapatilla z2 = mapper.toZapatilla(null, dto);
 
             assertThat(z1.getUuid()).isNotEqualTo(z2.getUuid());
         }
@@ -87,7 +87,7 @@ class ZapatillaMapperTest {
                     .stock(10)
                     .build();
 
-            Zapatilla zapatilla = mapper.toZapatilla(dto);
+            Zapatilla zapatilla = mapper.toZapatilla(null, dto);
 
             LocalDateTime despues = LocalDateTime.now();
 

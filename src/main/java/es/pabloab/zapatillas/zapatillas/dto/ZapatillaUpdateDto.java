@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Builder
 @Data

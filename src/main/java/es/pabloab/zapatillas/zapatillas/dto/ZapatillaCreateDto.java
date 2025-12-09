@@ -4,7 +4,7 @@ import es.pabloab.zapatillas.zapatillas.validators.CodigoProducto;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
-
+import lombok.extern.jackson.Jacksonized;
 @Builder
 @Data
 

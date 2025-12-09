@@ -23,8 +23,10 @@ public class ZapatillaMapper {
                 .color(dto.getColor())
                 .tipo(dto.getTipo())
                 .precio(dto.getPrecio())
-                .stock(dto.getStock())
-                .uuid(UUID.randomUUID())
+                                .stock(dto.getStock())
+                                .uuid(UUID.randomUUID())
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
@@ -43,6 +45,8 @@ public class ZapatillaMapper {
                         dto.getTipo() : zapatilla.getTipo())
                 .precio(dto.getPrecio() != null ?
                         dto.getPrecio() : zapatilla.getPrecio())
+                .stock(dto.getStock() != null ?
+                        dto.getStock() : zapatilla.getStock())
                 .createdAt(zapatilla.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .uuid(zapatilla.getUuid())

@@ -15,4 +15,12 @@ create table ZAPATILLAS
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
     uuid           uuid                                not null unique
 );
-INSERT INTO
+INSERT INTO ZAPATILLAS(marca, modelo, codigoProducto, talla, color, tipo, precio,
+                       stock,uuid)
+VALUES ( 'Nike','Air Max','NI1234KE',42.0,'Rojo','Running',
+        89.99,28,UUID());
+
+INSERT INTO ZAPATILLAS(marca, modelo, codigoProducto, talla, color, tipo, precio,
+                       stock, uuid)
+VALUES ( 'Fila','high','FI1234LA',40.0,'Blanco','Running',
+         79.99,52,UUID());

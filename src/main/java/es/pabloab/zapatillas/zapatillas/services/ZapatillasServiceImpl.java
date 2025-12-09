@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,17 +28,39 @@ public class ZapatillasServiceImpl implements ZapatillasService {
 
     @Override
     public List<ZapatillaResponseDto> findAll(String marca, String tipo) {
-        return List.of();
+        List<Zapatilla> zapatillas;
+
+        if (marca != null && tipo != null) {
+            zapatillas = repository.findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(marca, tipo);
+        } else if (marca != null) {
+            zapatillas = repository.findAllByMarcaContainingIgnoreCase(marca);
+        } else if (tipo != null) {
+            zapatillas = repository.findAllByTipoContainingIgnoreCase(tipo);
+        } else {
+            zapatillas = repository.findAll();
+        }
+
+        return mapper.toResponseDtoList(zapatillas);
     }
 
     @Override
     public ZapatillaResponseDto findById(Long id) {
-        return null;
+        Zapatilla zapatilla = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException());
+
+        return mapper.toResponseDto(zapatilla);
     }
 
     @Override
     public ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException {
-        return null;
+        try {
+            UUID u = UUID.fromString(uuid);
+            Zapatilla zapatilla = repository.findByUuid(u)
+                    .orElseThrow(() -> new NoSuchElementException());
+            return mapper.toResponseDto(zapatilla);
+        } catch (IllegalArgumentException e) {
+            throw new ZapatillaBadUuidException(uuid);
+        }
     }
 
     @Override

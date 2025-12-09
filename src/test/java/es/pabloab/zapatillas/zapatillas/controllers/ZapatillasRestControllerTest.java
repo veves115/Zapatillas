@@ -1,5 +1,6 @@
 package es.pabloab.zapatillas.zapatillas.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
@@ -8,12 +9,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,14 +28,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@WebMvcTest(controllers = ZapatillasRestController.class)
 @DisplayName("Tests de ZapatillasRestController")
 class ZapatillasRestControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
-    @Mock
+
+    @MockBean
     private ZapatillasService service;
 
     private ZapatillaResponseDto responseDto;
@@ -308,7 +310,7 @@ class ZapatillasRestControllerTest {
 
             mockMvc.perform(
                             post("/api/v1/zapatillas")
-                                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                                    .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(dtoInvalido))
                     )
                     .andExpect(status().isBadRequest())
@@ -408,7 +410,7 @@ class ZapatillasRestControllerTest {
         @Test
         @DisplayName("Debe devolver 204 No Content")
         void deleteZapatillaExiste() throws Exception {
-            doNothing().when(service).deleteById(1L);
+            willDoNothing().given(service).deleteById(1L);
             mockMvc.perform(
                             delete("/api/v1/zapatillas/{id}", 1L)
                     )

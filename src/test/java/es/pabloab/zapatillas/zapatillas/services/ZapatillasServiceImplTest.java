@@ -2,137 +2,88 @@ package es.pabloab.zapatillas.zapatillas.services;
 
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
 import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.zapatillas.exceptions.ZapatillaBadUuidException;
 import es.pabloab.zapatillas.zapatillas.mappers.ZapatillaMapper;
 import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
 import es.pabloab.zapatillas.zapatillas.repositories.ZapatillasRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import es.pabloab.zapatillas.zapatillas.controllers.websocket.ZapatillasWebSocketController;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-@CacheConfig(cacheNames = {"zapatillas"})
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class ZapatillasServiceImpl implements ZapatillasService {
-    private final ZapatillasRepository repository;
-    private final ZapatillaMapper mapper;
-    private final ApplicationEventPublisher eventPublisher;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
-    @Override
-    public List<ZapatillaResponseDto> findAll(String marca, String tipo) {
-        boolean sinMarca = (marca == null || marca.trim().isEmpty());
-        boolean sinTipo = (tipo == null || tipo.trim().isEmpty());
+@DisplayName("Unit tests for ZapatillasServiceImpl (basic)")
+class ZapatillasServiceImplTest {
 
-        if (sinMarca && sinTipo) {
-            log.info("Buscando todas las zapatillas");
-            return mapper.toResponseDtoList(repository.findAll());
-        }
-        if (!sinMarca && sinTipo) {
-            log.info("Buscando todas las zapatillas por marca: {}", marca);
-            return mapper.toResponseDtoList(repository.findAllByMarca(marca));
-        }
-        if (sinMarca) {
-            log.info("Buscando todas las zapatillas por tipo: {}", tipo);
-            return mapper.toResponseDtoList(repository.findAllByTipo(tipo));
-        }
-        log.info("Buscando zapatillas por marca: {} y tipo: {}", marca, tipo);
-        return mapper.toResponseDtoList(repository.findAllByMarcaAndTipo(marca, tipo));
+    @Mock
+    private ZapatillasRepository repository;
+    @Mock
+    private ZapatillaMapper mapper;
+    @Mock
+    private ZapatillasWebSocketController webSocketController;
+
+    private ZapatillasServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        service = new ZapatillasServiceImpl(repository, mapper, webSocketController);
     }
 
-    @Cacheable(key = "#id")
-    @Override
-    public ZapatillaResponseDto findById(Long id) {
-        log.info("Buscando zapatillas por id: {}", id);
-        return mapper.toResponseDto(
-                repository.findById(id).orElseThrow()
-        );
+    @Test
+    void saveDelegatesToRepositoryAndSendsNotification() {
+        ZapatillaCreateDto dto = ZapatillaCreateDto.builder()
+                .marca("Nike")
+                .modelo("Test")
+                .codigoProducto("C123")
+                .talla(42.0)
+                .color("Negro")
+                .tipo("Running")
+                .precio(99.0)
+                .stock(5)
+                .build();
+
+        Zapatilla zapatilla = Zapatilla.builder()
+                .id(1L)
+                .marca(dto.getMarca())
+                .modelo(dto.getModelo())
+                .codigoProducto(dto.getCodigoProducto())
+                .talla(dto.getTalla())
+                .color(dto.getColor())
+                .tipo(dto.getTipo())
+                .precio(dto.getPrecio())
+                .stock(dto.getStock())
+                .uuid(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        given(mapper.toZapatilla(null, dto)).willReturn(zapatilla);
+        given(repository.save(zapatilla)).willReturn(zapatilla);
+        given(mapper.toResponseDto(zapatilla)).willReturn(ZapatillaResponseDto.builder().id(1L).marca("Nike").build());
+
+        ZapatillaResponseDto result = service.save(dto);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+
+        ArgumentCaptor<Zapatilla> captor = ArgumentCaptor.forClass(Zapatilla.class);
+        verify(repository).save(captor.capture());
+        Zapatilla saved = captor.getValue();
+        assertThat(saved.getMarca()).isEqualTo("Nike");
+
+        verify(webSocketController).enviarNotificacion(any());
     }
 
-    @Cacheable(key = "#uuid")
-    @Override
-    public ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException {
-        log.info("Buscando zapatilla por uuid {}", uuid);
-        try {
-            var myUUID = UUID.fromString(uuid);
-            var zapatilla = repository.findByUuid(myUUID);
-            if (zapatilla.isEmpty()) {
-                return null;
-            }
-            return mapper.toResponseDto(zapatilla.get());
-        } catch (IllegalArgumentException e) {
-            throw new ZapatillaBadUuidException(uuid);
-        }
-    }
-
-    @CachePut(key = "#result.id")
-    @Override
-    public ZapatillaResponseDto save(ZapatillaCreateDto dto) {
-        log.info("Guardando zapatilla: {}", dto);
-
-        Zapatilla nuevaZapatilla = mapper.toZapatilla(dto);
-
-        // Establecer campos automáticos
-        if (nuevaZapatilla.getUuid() == null) {
-            nuevaZapatilla.setUuid(UUID.randomUUID());
-        }
-        if (nuevaZapatilla.getCreatedAt() == null) {
-            nuevaZapatilla.setCreatedAt(LocalDateTime.now());
-        }
-        nuevaZapatilla.setUpdatedAt(LocalDateTime.now());
-
-        Zapatilla guardada = repository.save(nuevaZapatilla);
-
-        // Publicar evento de creación
-        eventPublisher.publishEvent(new ZapatillaChangeEvent(guardada, ZapatillaChangeEvent.ChangeType.CREATE));
-
-        return mapper.toResponseDto(guardada);
-    }
-
-    @CachePut(key = "#result.id")
-    @Override
-    public ZapatillaResponseDto update(Long id, ZapatillaUpdateDto dto) {
-        log.info("Actualizando zapatilla por id: {}", id);
-        Zapatilla zapatillaActual = repository.findById(id)
-                .orElseThrow();
-
-        Zapatilla zapatillaActualizada = mapper.toZapatilla(dto, zapatillaActual);
-
-        // Actualizar fecha de modificación
-        zapatillaActualizada.setUpdatedAt(LocalDateTime.now());
-
-        Zapatilla guardada = repository.save(zapatillaActualizada);
-
-        // Publicar evento de actualización
-        eventPublisher.publishEvent(new ZapatillaChangeEvent(guardada, ZapatillaChangeEvent.ChangeType.UPDATE));
-
-        return mapper.toResponseDto(guardada);
-    }
-
-    @CacheEvict(key = "#id")
-    @Override
-    public void deleteById(Long id) {
-        log.debug("Eliminando zapatilla por id:{}", id);
-
-        // Obtener la zapatilla antes de eliminarla para publicar el evento
-        Zapatilla zapatilla = repository.findById(id)
-                .orElseThrow();
-
-        repository.deleteById(id);
-
-        // Publicar evento de eliminación
-        eventPublisher.publishEvent(new ZapatillaChangeEvent(zapatilla, ZapatillaChangeEvent.ChangeType.DELETE));
-    }
 }
 
 
