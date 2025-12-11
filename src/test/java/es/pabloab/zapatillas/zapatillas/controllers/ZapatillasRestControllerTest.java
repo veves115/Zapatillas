@@ -12,11 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = ZapatillasRestController.class)
+@SuppressWarnings("ALL")
 @DisplayName("Tests de ZapatillasRestController")
 class ZapatillasRestControllerTest {
     @Autowired
@@ -37,7 +38,7 @@ class ZapatillasRestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+
     private ZapatillasService service;
 
     private ZapatillaResponseDto responseDto;
@@ -85,7 +86,7 @@ class ZapatillasRestControllerTest {
         @Test
         @DisplayName("Debe devolver 200 OK y lista de zapatillas")
         void getAllDevuelveLista() throws Exception {
-            given(service.findAll(null, null)).willReturn(List.of(responseDto));
+            given(service.findAll(null, null,any(Pageable.class))).willReturn(new PageImpl<>(List.of(responseDto)));
 
             mockMvc.perform(
                             get("/api/v1/zapatillas")
@@ -93,63 +94,62 @@ class ZapatillasRestControllerTest {
                     )
                     .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(1)))
-                    .andExpect(jsonPath("$[0].id", is(1)))
-                    .andExpect(jsonPath("$[0].marca", is("Nike")))
-                    .andExpect(jsonPath("$[0].precio", is(129.99)));
+                    .andExpect(jsonPath("$.content", hasSize(1)))
+                    .andExpect(jsonPath("$.content[0].id", is(1)))
+                    .andExpect(jsonPath("$.content[0].marca", is("Nike")))
+                    .andExpect(jsonPath("$.content[0].precio", is(129.99)));
 
-            verify(service).findAll(null, null);
+            verify(service).findAll(null, null,any(Pageable.class));
         }
 
         @Test
         @DisplayName("Con marca debe pasar el parámetro al service")
         void getAllConMarca() throws Exception {
-            given(service.findAll("Nike", null)).willReturn(List.of(responseDto));
+            given(service.findAll("Nike", null,any(Pageable.class))).willReturn(new PageImpl<>(List.of(responseDto)));
 
             mockMvc.perform(
                             get("/api/v1/zapatillas")
                                     .param("marca", "Nike")
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(1)));
-            verify(service).findAll("Nike", null);
+                    .andExpect(jsonPath("$.content", hasSize(1)));
+            verify(service).findAll("Nike", null,any(Pageable.class));
         }
 
         @Test
         @DisplayName("Con tipo debe pasar el parámetro al service")
         void getAllConTipo() throws Exception {
-            given(service.findAll(null, "Running")).willReturn(List.of(responseDto));
+            given(service.findAll(null, "Running",any(Pageable.class))).willReturn(new PageImpl<>(List.of(responseDto)));
             mockMvc.perform(
                             get("/api/v1/zapatillas")
                                     .param("tipo", "Running")
                     )
                     .andExpect(status().isOk());
-            verify(service).findAll(null, "Running");
+            verify(service).findAll(null, "Running",any(Pageable.class));
         }
 
         @Test
         @DisplayName("Con marca y tipo debe pasar ambos parámetros")
         void getAllConMarcaAndTipo() throws Exception {
-            given(service.findAll("Nike", "Running")).willReturn(List.of(responseDto));
+            given(service.findAll("Nike", "Running",any(Pageable.class))).willReturn(new PageImpl<>(List.of(responseDto)));
             mockMvc.perform(
                             get("/api/v1/zapatillas")
                                     .param("marca", "Nike")
                                     .param("tipo", "Running")
                     )
                     .andExpect(status().isOk());
-            verify(service).findAll("Nike", "Running");
+            verify(service).findAll("Nike", "Running",any(Pageable.class));
         }
 
         @Test
         @DisplayName("Lista vacía debe devolver 200 OK con array vacío")
         void getAllListaVaca() throws Exception {
-            given(service.findAll(null, null)).willReturn(List.of());
+            given(service.findAll(null, null,any(Pageable.class))).willReturn(new PageImpl<>(List.of(responseDto)));
             mockMvc.perform(
                             get("/api/v1/zapatillas")
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(0)))
-                    .andExpect(content().json("[]"));
+                    .andExpect(jsonPath("$.content", hasSize(0)));
         }
     }
 

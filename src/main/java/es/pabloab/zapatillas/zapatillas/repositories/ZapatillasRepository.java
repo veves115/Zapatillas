@@ -2,6 +2,8 @@ package es.pabloab.zapatillas.zapatillas.repositories;
 
 
 import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,11 +15,12 @@ import java.util.UUID;
 
 @Repository
 public interface ZapatillasRepository extends JpaRepository<Zapatilla, Long> {
-    List<Zapatilla> findAllByMarcaContainingIgnoreCase(String marca);
-    List<Zapatilla> findAllByTipoContainingIgnoreCase(String tipo);
-    List<Zapatilla> findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(
+    Page<Zapatilla> findAllByMarcaContainingIgnoreCase(String marca, Pageable pageable);
+    Page<Zapatilla> findAllByTipoContainingIgnoreCase(String tipo, Pageable pageable);
+    Page<Zapatilla> findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(
             String marca,
-            String tipo
+            String tipo,
+            Pageable pageable
     );
 
     Optional<Zapatilla> findByUuid(UUID uuid);

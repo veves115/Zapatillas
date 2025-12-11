@@ -9,6 +9,8 @@ import es.pabloab.zapatillas.zapatillas.services.ZapatillasService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +32,11 @@ public class ZapatillasRestController {
     private final ZapatillasService service;
 
     @GetMapping()
-    public ResponseEntity<List<ZapatillaResponseDto>> getAll(
+    public ResponseEntity<Page<ZapatillaResponseDto>> getAll(
             @RequestParam(required = false) String marca,
-            @RequestParam(required = false) String tipo) {
-        log.info("Buscando zapatillas por marca={} tipo={}", marca, tipo);
-        return ResponseEntity.ok(service.findAll(marca, tipo));
+            @RequestParam(required = false) String tipo, Pageable pageable) {
+        log.info("Buscando zapatillas por marca={} tipo={}", marca, tipo,pageable);
+        return ResponseEntity.ok(service.findAll(marca, tipo,pageable));
     }
 
     @GetMapping("/{id}")

@@ -11,6 +11,8 @@ import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
 import es.pabloab.zapatillas.zapatillas.repositories.ZapatillasRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,20 +29,20 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     private final ZapatillasWebSocketController webSocketController;  // ← NUEVO
 
     @Override
-    public List<ZapatillaResponseDto> findAll(String marca, String tipo) {
-        List<Zapatilla> zapatillas;
+    public Page<ZapatillaResponseDto> findAll(String marca, String tipo, Pageable pageable) {
+        Page<Zapatilla> zapatillasPage;
 
         if (marca != null && tipo != null) {
-            zapatillas = repository.findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(marca, tipo);
+            zapatillasPage = repository.findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(marca, tipo, pageable);
         } else if (marca != null) {
-            zapatillas = repository.findAllByMarcaContainingIgnoreCase(marca);
+            zapatillasPage = repository.findAllByMarcaContainingIgnoreCase(marca, pageable);
         } else if (tipo != null) {
-            zapatillas = repository.findAllByTipoContainingIgnoreCase(tipo);
+            zapatillasPage = repository.findAllByTipoContainingIgnoreCase(tipo, pageable);
         } else {
-            zapatillas = repository.findAll();
+            zapatillasPage = repository.findAll(pageable);
         }
 
-        return mapper.toResponseDtoList(zapatillas);
+        return zapatillasPage.map(mapper::toResponseDto);
     }
 
     @Override
