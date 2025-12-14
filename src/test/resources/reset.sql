@@ -1,5 +1,5 @@
 drop table if exists ZAPATILLAS;
-drop table if exists USUARIOS;
+drop table if existes USUARIOS;
 
 create table ZAPATILLAS
 (
@@ -25,17 +25,4 @@ create table USUARIOS
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
 );
 
-INSERT INTO USUARIOS(nombre, email) VALUES ('Pablo', 'pablo@example.com');
-
-INSERT INTO USUARIOS(nombre, email) VALUES ('Ana', 'ana@example.com');
-
-INSERT INTO ZAPATILLAS(marca, modelo, codigoProducto, talla, color, tipo, precio,
-                       stock,uuid)
-VALUES ( 'Nike','Air Max','NI1234KE',42.0,'Rojo','Running',
-        89.99,28,UUID());
-
-INSERT INTO ZAPATILLAS(marca, modelo, codigoProducto, talla, color, tipo, precio,
-                       stock, uuid)
-VALUES ( 'Fila','high','FI1234LA',40.0,'Blanco','Running',
-         79.99,52,UUID());
 

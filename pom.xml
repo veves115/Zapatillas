@@ -110,12 +110,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-restclient</artifactId>
         </dependency>
-        <dependency>
-            <groupId>es.pabloab</groupId>
-            <artifactId>Zapatillas</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 
