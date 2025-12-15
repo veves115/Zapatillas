@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsuarioResponseDto {
+public class ClienteResponseDto {
     private Long id;
     private String nombre;
     private String email;

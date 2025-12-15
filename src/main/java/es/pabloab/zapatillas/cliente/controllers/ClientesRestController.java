@@ -1,8 +1,8 @@
 package es.pabloab.zapatillas.cliente.controllers;
 
-import es.pabloab.zapatillas.cliente.dto.UsuarioCreateDto;
-import es.pabloab.zapatillas.cliente.dto.UsuarioResponseDto;
-import es.pabloab.zapatillas.cliente.services.UsuariosService;
+import es.pabloab.zapatillas.cliente.dto.ClienteCreateDto;
+import es.pabloab.zapatillas.cliente.dto.ClienteResponseDto;
+import es.pabloab.zapatillas.cliente.services.ClienteService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,23 +21,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/v1/usuarios")
 @Slf4j
-public class UsuariosRestController {
-    private final UsuariosService service;
+public class ClientesRestController {
+    private final ClienteService service;
 
-    public UsuariosRestController(UsuariosService service) {
+    public ClientesRestController(ClienteService service) {
         this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<Page<UsuarioResponseDto>> getAll(Pageable pageable){
+    public ResponseEntity<Page<ClienteResponseDto>> getAll(Pageable pageable){
         return ResponseEntity.ok(service.findAll(pageable));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDto> getById(@PathVariable Long id) {
+    public ResponseEntity<ClienteResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
     @PostMapping
-    public ResponseEntity<UsuarioResponseDto> create(@Valid @RequestBody UsuarioCreateDto dto){
+    public ResponseEntity<ClienteResponseDto> create(@Valid @RequestBody ClienteCreateDto dto){
         var saved = service.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
