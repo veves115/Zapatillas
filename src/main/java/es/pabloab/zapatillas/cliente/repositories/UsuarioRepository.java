@@ -1,6 +1,6 @@
-package es.pabloab.zapatillas.usuarios.repositories;
+package es.pabloab.zapatillas.cliente.repositories;
 
-import es.pabloab.zapatillas.usuarios.models.Usuario;
+import es.pabloab.zapatillas.cliente.models.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

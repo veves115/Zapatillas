@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.usuarios.exceptions;
+package es.pabloab.zapatillas.cliente.exceptions;
 
 public class UsuarioException extends Exception {
     public UsuarioException(String message) {

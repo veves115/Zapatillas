@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.usuarios.models;
+package es.pabloab.zapatillas.cliente.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,11 +1,11 @@
-package es.pabloab.zapatillas.usuarios.services;
+package es.pabloab.zapatillas.cliente.services;
 
-import es.pabloab.zapatillas.usuarios.dto.UsuarioCreateDto;
-import es.pabloab.zapatillas.usuarios.dto.UsuarioResponseDto;
-import es.pabloab.zapatillas.usuarios.dto.UsuarioUpdateDto;
-import es.pabloab.zapatillas.usuarios.mappers.UsuarioMapper;
-import es.pabloab.zapatillas.usuarios.models.Usuario;
-import es.pabloab.zapatillas.usuarios.repositories.UsuarioRepository;
+import es.pabloab.zapatillas.cliente.dto.UsuarioCreateDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioResponseDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioUpdateDto;
+import es.pabloab.zapatillas.cliente.mappers.UsuarioMapper;
+import es.pabloab.zapatillas.cliente.models.Usuario;
+import es.pabloab.zapatillas.cliente.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

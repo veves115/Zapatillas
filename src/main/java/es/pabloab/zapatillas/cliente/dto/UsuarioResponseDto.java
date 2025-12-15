@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.usuarios.dto;
+package es.pabloab.zapatillas.cliente.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

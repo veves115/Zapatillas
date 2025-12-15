@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.usuarios.exceptions;
+package es.pabloab.zapatillas.cliente.exceptions;
 
 public class UsuarioNotFoundException extends UsuarioException {
     public UsuarioNotFoundException(Long id) {

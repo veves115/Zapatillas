@@ -1,9 +1,9 @@
-package es.pabloab.zapatillas.usuarios.services;
+package es.pabloab.zapatillas.cliente.services;
 
 
-import es.pabloab.zapatillas.usuarios.dto.UsuarioCreateDto;
-import es.pabloab.zapatillas.usuarios.dto.UsuarioResponseDto;
-import es.pabloab.zapatillas.usuarios.dto.UsuarioUpdateDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioCreateDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioResponseDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioUpdateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

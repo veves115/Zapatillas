@@ -1,8 +1,8 @@
-package es.pabloab.zapatillas.usuarios.controllers;
+package es.pabloab.zapatillas.cliente.controllers;
 
-import es.pabloab.zapatillas.usuarios.dto.UsuarioCreateDto;
-import es.pabloab.zapatillas.usuarios.dto.UsuarioResponseDto;
-import es.pabloab.zapatillas.usuarios.services.UsuariosService;
+import es.pabloab.zapatillas.cliente.dto.UsuarioCreateDto;
+import es.pabloab.zapatillas.cliente.dto.UsuarioResponseDto;
+import es.pabloab.zapatillas.cliente.services.UsuariosService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.View;
 
 import java.util.HashMap;
 import java.util.Map;
