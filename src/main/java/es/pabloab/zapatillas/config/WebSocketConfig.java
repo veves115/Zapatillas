@@ -1,4 +1,4 @@
-package es.pabloab.zapatillas.config.websockets;
+package es.pabloab.zapatillas.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

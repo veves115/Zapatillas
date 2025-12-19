@@ -1,8 +1,18 @@
 package es.pabloab.zapatillas.auth.repositories;
 
 
+import es.pabloab.zapatillas.user.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class AuthUsersRepository extends JpaRepository<User,Long> {
+import java.util.Optional;
+
+@Repository
+public interface AuthUsersRepository extends JpaRepository<User,Long> {
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
+
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 
 }
