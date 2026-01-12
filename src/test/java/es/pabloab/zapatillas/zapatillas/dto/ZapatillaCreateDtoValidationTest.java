@@ -1,6 +1,7 @@
 package es.pabloab.zapatillas.zapatillas.dto;
 
 
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaCreateDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

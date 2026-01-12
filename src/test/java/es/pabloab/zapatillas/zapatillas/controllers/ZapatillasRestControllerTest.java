@@ -1,10 +1,10 @@
 package es.pabloab.zapatillas.zapatillas.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.zapatillas.services.ZapatillasService;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.rest.zapatillas.services.ZapatillasService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

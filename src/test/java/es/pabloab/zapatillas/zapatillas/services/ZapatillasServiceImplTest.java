@@ -1,17 +1,18 @@
 package es.pabloab.zapatillas.zapatillas.services;
 
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.zapatillas.mappers.ZapatillaMapper;
-import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
-import es.pabloab.zapatillas.zapatillas.repositories.ZapatillasRepository;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.rest.zapatillas.mappers.ZapatillaMapper;
+import es.pabloab.zapatillas.rest.zapatillas.models.Zapatilla;
+import es.pabloab.zapatillas.rest.zapatillas.repositories.ZapatillasRepository;
+import es.pabloab.zapatillas.rest.zapatillas.services.ZapatillasServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import es.pabloab.zapatillas.zapatillas.controllers.websocket.ZapatillasWebSocketController;
+import es.pabloab.zapatillas.rest.zapatillas.controllers.websocket.ZapatillasWebSocketController;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.time.LocalDateTime;

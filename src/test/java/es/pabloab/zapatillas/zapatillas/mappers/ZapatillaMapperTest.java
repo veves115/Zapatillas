@@ -1,9 +1,10 @@
 package es.pabloab.zapatillas.zapatillas.mappers;
 
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaCreateDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaResponseDto;
-import es.pabloab.zapatillas.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.zapatillas.models.Zapatilla;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaCreateDto;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
+import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaUpdateDto;
+import es.pabloab.zapatillas.rest.zapatillas.mappers.ZapatillaMapper;
+import es.pabloab.zapatillas.rest.zapatillas.models.Zapatilla;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
