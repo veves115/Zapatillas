@@ -150,10 +150,15 @@
             <version>2.3.0</version>
         </dependency>
 
-        <!-- Pebble Template Engine (núcleo) -->
+        <!-- Pebble Template Engine -->
         <dependency>
             <groupId>io.pebbletemplates</groupId>
             <artifactId>pebble</artifactId>
+            <version>${pebble.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.pebbletemplates</groupId>
+            <artifactId>pebble-spring</artifactId>
             <version>${pebble.version}</version>
         </dependency>
 
