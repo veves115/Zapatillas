@@ -7,8 +7,6 @@ import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaBadUuidExceptio
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
-
 public interface ZapatillasService {
     Page<ZapatillaResponseDto> findAll(String marca, String tipo, Pageable pageable);
 
@@ -21,8 +19,6 @@ public interface ZapatillasService {
     ZapatillaResponseDto update(Long id, ZapatillaUpdateDto dto);
 
     void deleteById(Long id);
-
-    <Z> Page<ZapatillaResponseDto> findAll(Optional<Z> empty, Optional<Z> empty1, Optional<Z> empty2, Pageable pageable);
 }
 
 

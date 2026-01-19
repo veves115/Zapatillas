@@ -1,0 +1,37 @@
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ appName | default('Zapatillas') }}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="/webjars/bootstrap/5.3.8/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="/webjars/bootstrap-icons/1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .badge-stock {
+            font-size: 0.9rem;
+            padding: 0.5em 0.75em;
+        }
+    </style>
+</head>

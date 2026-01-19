@@ -1,6 +1,5 @@
 package es.pabloab.zapatillas.web.controllers;
 
-import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;

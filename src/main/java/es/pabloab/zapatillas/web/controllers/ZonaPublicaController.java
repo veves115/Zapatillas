@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @Controller
 @RequestMapping
@@ -28,7 +26,7 @@ public class ZonaPublicaController {
                         @RequestParam(name = "size", defaultValue = "4") int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         Page<ZapatillaResponseDto> zapatillasPage = zapatillasService.findAll(
-                Optional.empty(), Optional.empty(), Optional.empty(), pageable);
+                null, null, pageable);
 
         model.addAttribute("page", zapatillasPage);
         return "index";

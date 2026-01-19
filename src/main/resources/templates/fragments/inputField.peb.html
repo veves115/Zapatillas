@@ -1,0 +1,17 @@
+{% macro inputField(name, label, type="text", value="", required=false, placeholder="") %}
+<div class="mb-3">
+    <label for="{{ name }}" class="form-label">
+        {{ label }}
+        {% if required %}<span class="text-danger">*</span>{% endif %}
+    </label>
+    <input 
+        type="{{ type }}" 
+        class="form-control" 
+        id="{{ name }}" 
+        name="{{ name }}" 
+        value="{{ value }}"
+        {% if required %}required{% endif %}
+        {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+    >
+</div>
+{% endmacro %}

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -122,8 +121,4 @@ public class ZapatillasServiceImpl implements ZapatillasService {
         webSocketController.enviarNotificacion(notificacion);
     }
 
-    @Override
-    public <Z> Page<ZapatillaResponseDto> findAll(Optional<Z> empty, Optional<Z> empty1, Optional<Z> empty2, Pageable pageable) {
-        return ;
-    }
 }
