@@ -150,12 +150,7 @@
             <version>2.3.0</version>
         </dependency>
 
-        <!-- Pebble Template Engine -->
-        <dependency>
-            <groupId>io.pebbletemplates</groupId>
-            <artifactId>pebble-spring-boot-starter</artifactId>
-            <version>${pebble.version}</version>
-        </dependency>
+        <!-- Pebble Template Engine (núcleo) -->
         <dependency>
             <groupId>io.pebbletemplates</groupId>
             <artifactId>pebble</artifactId>
