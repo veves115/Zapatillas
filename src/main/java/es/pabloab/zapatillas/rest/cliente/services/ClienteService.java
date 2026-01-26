@@ -13,4 +13,14 @@ public interface ClienteService {
     ClienteResponseDto save(ClienteCreateDto dto);
     ClienteResponseDto update(Long id, ClienteUpdateDto dto);
     void deleteById(Long id);
+    
+    /**
+     * Verifica si un cliente pertenece al usuario autenticado actual.
+     * Útil para controlar el acceso: un usuario solo puede modificar su propio cliente.
+     * 
+     * @param clienteId El ID del cliente a verificar
+     * @param userId El ID del usuario autenticado
+     * @return true si el cliente pertenece al usuario, false en caso contrario
+     */
+    boolean belongsToUser(Long clienteId, Long userId);
 }
