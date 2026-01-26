@@ -67,7 +67,7 @@ public class ZapatillasRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ZapatillaResponseDto> delete(@PathVariable Long id) {
+    public ResponseEntity<ZapatillaResponseDto>delete(@PathVariable Long id) {
         log.info("Eliminando zapatilla id={}", id);
         service.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
