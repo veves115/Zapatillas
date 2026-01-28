@@ -1,5 +1,7 @@
 package es.pabloab.zapatillas.auth;
 
+import es.pabloab.zapatillas.rest.auth.dto.AuthResponseDto;
+import es.pabloab.zapatillas.rest.auth.dto.RegisterDto;
 import es.pabloab.zapatillas.rest.auth.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +21,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/${api.version}/auth")
-public class AuthenticationRestController {
+public class AdminAuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/signup")
-    public ResponseEntity<JwtAuthResponse>signUp(@Valid @RequestBody UserSignUpRequest request){
+    public ResponseEntity<AuthResponseDto>signUp(@Valid @RequestBody RegisterDto request){
         log.info("Registrando usuario:{}",request);
-        return ResponseEntity.ok(authenticationService.signIn(request));
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
