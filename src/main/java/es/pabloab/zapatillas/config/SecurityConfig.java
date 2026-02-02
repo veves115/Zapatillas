@@ -4,6 +4,7 @@ import es.pabloab.zapatillas.rest.auth.filters.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,25 +21,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 /**
  * Configuración de seguridad de Spring Security.
- * 
- * Esta clase configura:
- * 1. Las reglas de autorización a nivel de URL (qué endpoints son públicos)
- * 2. El filtro JWT para autenticación
- * 3. La política de sesiones (STATELESS para APIs REST)
- * 4. El proveedor de autenticación
- * 
- * IMPORTANTE: 
- * - @EnableMethodSecurity habilita las anotaciones @PreAuthorize en los controladores
- * - Las reglas de autorización específicas (por rol) se definen en los controladores
- *   usando @PreAuthorize, no aquí en SecurityConfig
- * - Este SecurityConfig solo define qué endpoints son públicos (permitAll)
- *   y qué endpoints requieren autenticación (authenticated)
+ *
+ * REGLAS DE ACCESO:
+ *
+ * PÚBLICAS (sin autenticación):
+ * - GET /api/v1/zapatillas/** - Todo el mundo puede ver zapatillas
+ * - POST /api/v1/auth/** - Login y registro
+ * - /h2-console/** - Consola H2 (solo desarrollo)
+ * - /ws/** - WebSockets
+ * - /swagger-ui/** - Documentación API
+ * - Recursos estáticos (/, /index, /webjars/**, /css/**, etc.)
+ *
+ * REQUIEREN AUTENTICACIÓN:
+ * - POST, PUT, PATCH, DELETE /api/v1/zapatillas/** - Solo ADMIN (vía @PreAuthorize)
+ * - /api/v1/usuarios/** - ADMIN puede todo, USER solo sus propios clientes
+ * - /api/v1/users/** - ADMIN puede todo, USER solo su propio perfil
+ *
+ * IMPORTANTE:
+ * - @EnableMethodSecurity habilita @PreAuthorize en controladores
+ * - Las reglas específicas por rol se definen en los controladores con @PreAuthorize
+ * - Este SecurityConfig solo define qué es público vs requiere autenticación
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // Habilita @PreAuthorize y @PostAuthorize
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -59,13 +68,19 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Deshabilitado para APIs REST (usamos JWT)
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (no requieren autenticación)
-                        .requestMatchers("/api/v1/auth/**").permitAll() // Login y registro
+                        .requestMatchers("/api/v1/auth/**","/api/*/auth/**").permitAll() // Login y registro
+                        .requestMatchers(HttpMethod.GET,"/api/v1/zapatillas/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Consola H2 (solo desarrollo)
                         .requestMatchers("/ws/**").permitAll() // WebSockets
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger
                         .requestMatchers("/", "/index", "/webjars/**", "/css/**", "/js/**", "/images/**").permitAll() // Recursos estáticos
-                        // Todos los demás endpoints requieren autenticación
-                        // Las reglas específicas por rol se definen con @PreAuthorize en los controladores
+
+                        //Endpoints protegidos
+                        //Zapatillas: CREATE,UPDATE,DELETE requieren autenticacion
+                        .requestMatchers(HttpMethod.POST,"/api/v1/zapatillas/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/zapatillas/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH,"/api/v1/zapatillas/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/zapatillas/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

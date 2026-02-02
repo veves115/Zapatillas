@@ -3,6 +3,7 @@ package es.pabloab.zapatillas.rest.cliente.controllers;
 import es.pabloab.zapatillas.config.SecurityUtils;
 import es.pabloab.zapatillas.rest.cliente.dto.ClienteCreateDto;
 import es.pabloab.zapatillas.rest.cliente.dto.ClienteResponseDto;
+import es.pabloab.zapatillas.rest.cliente.dto.ClienteUpdateDto;
 import es.pabloab.zapatillas.rest.cliente.services.ClienteService;
 import es.pabloab.zapatillas.rest.user.models.User;
 import jakarta.validation.Valid;
@@ -24,16 +25,27 @@ import java.util.Map;
 
 /**
  * Controlador REST para gestionar clientes.
- * 
+ *
  * REGLAS DE SEGURIDAD:
- * - GET (ver todos): ADMIN puede ver todos, USER puede ver su propio cliente
- * - GET (ver por ID): ADMIN puede ver cualquiera, USER solo su propio cliente
- * - POST (crear): Solo ADMIN puede crear clientes
- * - PUT/PATCH (modificar): ADMIN puede modificar cualquiera, USER solo su propio cliente
- * - DELETE (borrar): Solo ADMIN puede borrar clientes
- * 
- * IMPORTANTE: Un usuario normal solo puede acceder a recursos que le pertenecen.
- * Esto se verifica comparando el ID del cliente con el cliente asociado al usuario.
+ *
+ * ADMIN (puede hacer todo):
+ * - Ver todos los clientes
+ * - Ver cualquier cliente por ID
+ * - Crear clientes
+ * - Modificar cualquier cliente
+ * - Eliminar cualquier cliente
+ *
+ * USER (acceso limitado):
+ * - Ver todos los clientes (catálogo público)
+ * - Ver solo SU PROPIO cliente por ID
+ * - NO puede crear clientes (solo ADMIN)
+ * - Modificar solo SU PROPIO cliente
+ * - NO puede eliminar clientes (solo ADMIN)
+ *
+ * IMPORTANTE:
+ * - Un usuario tiene una relación OneToOne con Cliente
+ * - El cliente asociado se obtiene mediante user.getCliente()
+ * - Si un USER intenta acceder a un cliente que no es el suyo, se lanza AccessDeniedException (403)
  */
 @RestController
 @RequestMapping("api/v1/usuarios")
@@ -47,112 +59,155 @@ public class ClientesRestController {
 
     /**
      * Obtiene todos los clientes (paginados).
-     * Acceso: ADMIN puede ver todos, USER puede ver su propio cliente.
-     * 
-     * NOTA: En una aplicación real, podrías querer filtrar los resultados
-     * para que los usuarios normales solo vean su propio cliente.
-     * Por ahora, permitimos que vean todos (puede ser un catálogo público).
+     *
+     * Acceso: Todos los usuarios autenticados pueden ver el listado completo.
+     * (Se considera un catálogo público para usuarios autenticados)
      */
     @GetMapping
     public ResponseEntity<Page<ClienteResponseDto>> getAll(Pageable pageable){
+        log.info("GET /api/v1/usuarios - Obteniendo todos los clientes");
         return ResponseEntity.ok(service.findAll(pageable));
     }
-    
+
     /**
      * Obtiene un cliente por su ID.
-     * Acceso: ADMIN puede ver cualquiera, USER solo su propio cliente.
-     * 
-     * Lógica de seguridad:
-     * 1. Si el usuario es ADMIN, puede ver cualquier cliente
-     * 2. Si el usuario es USER, verificamos que el cliente le pertenezca
-     * 
-     * @PreAuthorize no se puede usar aquí porque necesitamos acceso al parámetro
-     * y al usuario autenticado. Por eso verificamos manualmente en el método.
+     *
+     * REGLAS DE ACCESO:
+     * - ADMIN: Puede ver cualquier cliente
+     * - USER: Solo puede ver su propio cliente asociado
+     *
+     * @param id El ID del cliente a obtener
+     * @return El cliente si tiene permisos
+     * @throws AccessDeniedException si un USER intenta ver un cliente que no es el suyo
      */
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> getById(@PathVariable Long id) {
+        log.info("GET /api/v1/usuarios/{} - Usuario intentando acceder", id);
+
         User currentUser = SecurityUtils.getCurrentUser();
-        
-        // Si el usuario es ADMIN, puede ver cualquier cliente
+
+        // ADMIN puede ver cualquier cliente
         if (SecurityUtils.isAdmin()) {
+            log.debug("Usuario ADMIN accediendo a cliente id={}", id);
             return ResponseEntity.ok(service.findById(id));
         }
-        
-        // Si es USER, solo puede ver su propio cliente
+
+        // USER solo puede ver su propio cliente
         if (currentUser != null && currentUser.getCliente() != null) {
             Long userClienteId = currentUser.getCliente().getId();
+
             if (userClienteId.equals(id)) {
+                log.debug("Usuario USER accediendo a su propio cliente id={}", id);
                 return ResponseEntity.ok(service.findById(id));
+            } else {
+                log.warn("Usuario {} intentó acceder a cliente {} que no le pertenece (su cliente es {})",
+                        currentUser.getUsername(), id, userClienteId);
+                throw new AccessDeniedException("No tienes permiso para acceder a este cliente");
             }
         }
-        
-        // Si llegamos aquí, el usuario no tiene permiso
-        throw new AccessDeniedException("No tienes permiso para acceder a este cliente");
+
+        // Usuario sin cliente asociado
+        log.warn("Usuario {} no tiene cliente asociado e intentó acceder a cliente id={}",
+                currentUser != null ? currentUser.getUsername() : "unknown", id);
+        throw new AccessDeniedException("No tienes un cliente asociado");
     }
-    
+
     /**
      * Crea un nuevo cliente.
+     *
      * Acceso: Solo ADMIN puede crear clientes.
+     *
+     * @PreAuthorize verifica que el usuario tenga rol ADMIN antes de ejecutar el método.
+     * Si no tiene el rol, Spring Security lanza AccessDeniedException (403 Forbidden).
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponseDto> create(@Valid @RequestBody ClienteCreateDto dto){
+        log.info("POST /api/v1/usuarios - ADMIN creando cliente: {}", dto.getEmail());
         var saved = service.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-    
+
     /**
      * Actualiza un cliente.
-     * Acceso: ADMIN puede modificar cualquiera, USER solo su propio cliente.
-     * 
-     * Similar a getById, verificamos manualmente la propiedad del recurso.
+     *
+     * REGLAS DE ACCESO:
+     * - ADMIN: Puede modificar cualquier cliente
+     * - USER: Solo puede modificar su propio cliente asociado
+     *
+     * @param id El ID del cliente a actualizar
+     * @param dto Los datos a actualizar
+     * @return El cliente actualizado
+     * @throws AccessDeniedException si un USER intenta modificar un cliente que no es el suyo
      */
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody es.pabloab.zapatillas.rest.cliente.dto.ClienteUpdateDto dto) {
+            @Valid @RequestBody ClienteUpdateDto dto) {
+        log.info("PUT /api/v1/usuarios/{} - Actualizando cliente", id);
+
         User currentUser = SecurityUtils.getCurrentUser();
-        
-        // Si el usuario es ADMIN, puede modificar cualquier cliente
+
+        // ADMIN puede modificar cualquier cliente
         if (SecurityUtils.isAdmin()) {
+            log.debug("ADMIN actualizando cliente id={}", id);
             return ResponseEntity.ok(service.update(id, dto));
         }
-        
-        // Si es USER, solo puede modificar su propio cliente
+
+        // USER solo puede modificar su propio cliente
         if (currentUser != null && currentUser.getCliente() != null) {
             Long userClienteId = currentUser.getCliente().getId();
+
             if (userClienteId.equals(id)) {
+                log.debug("USER actualizando su propio cliente id={}", id);
                 return ResponseEntity.ok(service.update(id, dto));
+            } else {
+                log.warn("Usuario {} intentó modificar cliente {} que no le pertenece",
+                        currentUser.getUsername(), id);
+                throw new AccessDeniedException("No tienes permiso para modificar este cliente");
             }
         }
-        
-        throw new AccessDeniedException("No tienes permiso para modificar este cliente");
+
+        log.warn("Usuario sin cliente asociado intentó modificar cliente id={}", id);
+        throw new AccessDeniedException("No tienes un cliente asociado");
     }
-    
+
     /**
      * Elimina un cliente.
-     * Acceso: Solo ADMIN puede borrar clientes.
+     *
+     * Acceso: Solo ADMIN puede eliminar clientes.
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete (@PathVariable Long id){
+        log.info("DELETE /api/v1/usuarios/{} - ADMIN eliminando cliente", id);
         service.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    /**
+     * Maneja excepciones de validación.
+     *
+     * Este método se ejecuta automáticamente cuando hay errores de validación
+     * en los DTOs (anotaciones @Valid, @NotBlank, @Email, etc.)
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationException(MethodArgumentNotValidException ex){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         BindingResult bindingResult = ex.getBindingResult();
-        problemDetail.setDetail("Falló la validación para el objeto=" + bindingResult.getObjectName() + "Número de errores: " +
-                bindingResult.getErrorCount());
+
+        problemDetail.setDetail("Falló la validación para el objeto='" + bindingResult.getObjectName() +
+                "'. Número de errores: " + bindingResult.getErrorCount());
+
         Map<String,String> errors = new HashMap<>();
         bindingResult.getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName,errorMessage);
+            errors.put(fieldName, errorMessage);
         });
-        problemDetail.setProperty("errores",errors);
+        problemDetail.setProperty("errores", errors);
+
         return problemDetail;
     }
 }

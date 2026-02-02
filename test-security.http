@@ -1,0 +1,402 @@
+### ==============================================
+### TESTING DE SEGURIDAD - API ZAPATILLAS
+### ==============================================
+### 
+### Instrucciones:
+### 1. Ejecutar login para obtener token
+### 2. Copiar el token de la respuesta
+### 3. Pegar el token en la variable correspondiente (@admin_token o @user_token)
+### 4. Ejecutar los requests de prueba
+###
+### Usuarios disponibles:
+### - ADMIN: admin / admin123
+### - USER1: user1 / user123
+### - USER2: user2 / user123
+###
+
+### Variables
+@baseUrl = http://localhost:3000
+@admin_token = 
+@user_token = 
+
+### ==============================================
+### 1. AUTENTICACIÓN
+### ==============================================
+
+### 1.1 Login como ADMIN
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 1.2 Login como USER (user1)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "user123"
+}
+
+### 1.3 Login como USER (user2)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "user2",
+  "password": "user123"
+}
+
+### 1.4 Registro de nuevo usuario
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellidos": "López",
+  "username": "carlos",
+  "email": "carlos@example.com",
+  "password": "carlos123"
+}
+
+### ==============================================
+### 2. ZAPATILLAS - ACCESO PÚBLICO (sin token)
+### ==============================================
+
+### 2.1 Ver todas las zapatillas (SIN TOKEN - debe funcionar ✅)
+GET {{baseUrl}}/api/v1/zapatillas
+
+### 2.2 Ver zapatilla por ID (SIN TOKEN - debe funcionar ✅)
+GET {{baseUrl}}/api/v1/zapatillas/1
+
+### 2.3 Buscar por marca (SIN TOKEN - debe funcionar ✅)
+GET {{baseUrl}}/api/v1/zapatillas?marca=Nike
+
+### 2.4 Buscar por tipo (SIN TOKEN - debe funcionar ✅)
+GET {{baseUrl}}/api/v1/zapatillas?tipo=Running
+
+### ==============================================
+### 3. ZAPATILLAS - CREAR (solo ADMIN)
+### ==============================================
+
+### 3.1 Crear zapatilla como ADMIN (debe funcionar ✅)
+POST {{baseUrl}}/api/v1/zapatillas
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "marca": "New Balance",
+  "modelo": "990v5",
+  "codigoProducto": "NB9905CE",
+  "talla": 42.5,
+  "color": "Gris",
+  "tipo": "Running",
+  "precio": 189.99,
+  "stock": 15
+}
+
+### 3.2 Crear zapatilla como USER (debe fallar ❌ 403 Forbidden)
+POST {{baseUrl}}/api/v1/zapatillas
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "marca": "Test",
+  "modelo": "Fail",
+  "codigoProducto": "TS9999IL",
+  "talla": 42.0,
+  "color": "Negro",
+  "tipo": "Running",
+  "precio": 99.99,
+  "stock": 10
+}
+
+### 3.3 Crear zapatilla SIN TOKEN (debe fallar ❌ 401 Unauthorized)
+POST {{baseUrl}}/api/v1/zapatillas
+Content-Type: application/json
+
+{
+  "marca": "Test",
+  "modelo": "NoAuth",
+  "codigoProducto": "NA1234TH",
+  "talla": 42.0,
+  "color": "Rojo",
+  "tipo": "Casual",
+  "precio": 79.99,
+  "stock": 5
+}
+
+### ==============================================
+### 4. ZAPATILLAS - MODIFICAR (solo ADMIN)
+### ==============================================
+
+### 4.1 Modificar zapatilla como ADMIN (debe funcionar ✅)
+PUT {{baseUrl}}/api/v1/zapatillas/1
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "precio": 79.99,
+  "stock": 100
+}
+
+### 4.2 Modificar zapatilla como USER (debe fallar ❌ 403 Forbidden)
+PUT {{baseUrl}}/api/v1/zapatillas/1
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "precio": 49.99,
+  "stock": 200
+}
+
+### 4.3 Modificación parcial (PATCH) como ADMIN (debe funcionar ✅)
+PATCH {{baseUrl}}/api/v1/zapatillas/2
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "stock": 30
+}
+
+### ==============================================
+### 5. ZAPATILLAS - ELIMINAR (solo ADMIN)
+### ==============================================
+
+### 5.1 Eliminar zapatilla como ADMIN (debe funcionar ✅ 204 No Content)
+DELETE {{baseUrl}}/api/v1/zapatillas/5
+Authorization: Bearer {{admin_token}}
+
+### 5.2 Eliminar zapatilla como USER (debe fallar ❌ 403 Forbidden)
+DELETE {{baseUrl}}/api/v1/zapatillas/4
+Authorization: Bearer {{user_token}}
+
+### ==============================================
+### 6. PERFIL DE USUARIO
+### ==============================================
+
+### 6.1 Ver mi propio perfil (cualquier usuario autenticado ✅)
+GET {{baseUrl}}/api/v1/users/me
+Authorization: Bearer {{user_token}}
+
+### 6.2 Modificar mi propio perfil (cualquier usuario autenticado ✅)
+PUT {{baseUrl}}/api/v1/users/me
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "nombre": "Juan Carlos",
+  "apellidos": "Pérez López",
+  "email": "juancarlos.perez@example.com"
+}
+
+### 6.3 Ver perfil de otro usuario como ADMIN (debe funcionar ✅)
+GET {{baseUrl}}/api/v1/users/2
+Authorization: Bearer {{admin_token}}
+
+### 6.4 Ver perfil de otro usuario como USER (debe fallar ❌ 403 Forbidden)
+GET {{baseUrl}}/api/v1/users/3
+Authorization: Bearer {{user_token}}
+
+### 6.5 Modificar perfil de otro usuario como ADMIN (debe funcionar ✅)
+PUT {{baseUrl}}/api/v1/users/2
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "nombre": "María del Carmen",
+  "apellidos": "García Rodríguez",
+  "email": "maria.garcia@example.com"
+}
+
+### 6.6 Modificar perfil de otro usuario como USER (debe fallar ❌ 403 Forbidden)
+PUT {{baseUrl}}/api/v1/users/3
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "nombre": "Intento",
+  "apellidos": "Fallido",
+  "email": "fail@example.com"
+}
+
+### ==============================================
+### 7. CLIENTES - VER
+### ==============================================
+
+### 7.1 Ver todos los clientes como ADMIN (debe funcionar ✅)
+GET {{baseUrl}}/api/v1/usuarios
+Authorization: Bearer {{admin_token}}
+
+### 7.2 Ver todos los clientes como USER (debe funcionar ✅)
+GET {{baseUrl}}/api/v1/usuarios
+Authorization: Bearer {{user_token}}
+
+### 7.3 Ver cliente específico como ADMIN (debe funcionar ✅)
+GET {{baseUrl}}/api/v1/usuarios/1
+Authorization: Bearer {{admin_token}}
+
+### 7.4 Ver SU PROPIO cliente como USER (debe funcionar ✅)
+### NOTA: Reemplaza {id} con el ID del cliente asociado al user
+GET {{baseUrl}}/api/v1/usuarios/1
+Authorization: Bearer {{user_token}}
+
+### 7.5 Ver cliente de OTRO usuario como USER (debe fallar ❌ 403 Forbidden)
+GET {{baseUrl}}/api/v1/usuarios/2
+Authorization: Bearer {{user_token}}
+
+### ==============================================
+### 8. CLIENTES - CREAR (solo ADMIN)
+### ==============================================
+
+### 8.1 Crear cliente como ADMIN (debe funcionar ✅)
+POST {{baseUrl}}/api/v1/usuarios
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "nombre": "Pedro Martínez",
+  "email": "pedro.martinez@example.com"
+}
+
+### 8.2 Crear cliente como USER (debe fallar ❌ 403 Forbidden)
+POST {{baseUrl}}/api/v1/usuarios
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "nombre": "Intento Fallido",
+  "email": "fail@example.com"
+}
+
+### ==============================================
+### 9. CLIENTES - MODIFICAR
+### ==============================================
+
+### 9.1 Modificar cliente como ADMIN (debe funcionar ✅)
+PUT {{baseUrl}}/api/v1/usuarios/1
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "nombre": "Cliente Actualizado",
+  "email": "actualizado@example.com"
+}
+
+### 9.2 Modificar SU PROPIO cliente como USER (debe funcionar ✅)
+### NOTA: Reemplaza {id} con el ID del cliente asociado al user
+PUT {{baseUrl}}/api/v1/usuarios/1
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "nombre": "Mi Cliente Actualizado",
+  "email": "micliente@example.com"
+}
+
+### 9.3 Modificar cliente de OTRO como USER (debe fallar ❌ 403 Forbidden)
+PUT {{baseUrl}}/api/v1/usuarios/2
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "nombre": "Intento Fallido",
+  "email": "fail@example.com"
+}
+
+### ==============================================
+### 10. CLIENTES - ELIMINAR (solo ADMIN)
+### ==============================================
+
+### 10.1 Eliminar cliente como ADMIN (debe funcionar ✅ 204 No Content)
+DELETE {{baseUrl}}/api/v1/usuarios/3
+Authorization: Bearer {{admin_token}}
+
+### 10.2 Eliminar cliente como USER (debe fallar ❌ 403 Forbidden)
+DELETE {{baseUrl}}/api/v1/usuarios/2
+Authorization: Bearer {{user_token}}
+
+### ==============================================
+### 11. VALIDACIONES
+### ==============================================
+
+### 11.1 Crear zapatilla con datos inválidos (debe fallar ❌ 400 Bad Request)
+POST {{baseUrl}}/api/v1/zapatillas
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "marca": "",
+  "modelo": "",
+  "codigoProducto": "INVALIDO",
+  "talla": 10.0,
+  "color": "",
+  "tipo": "TipoInvalido",
+  "precio": -50.0,
+  "stock": -10
+}
+
+### 11.2 Crear cliente con email inválido (debe fallar ❌ 400 Bad Request)
+POST {{baseUrl}}/api/v1/usuarios
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "nombre": "Test",
+  "email": "email-invalido"
+}
+
+### ==============================================
+### 12. CASOS ESPECIALES
+### ==============================================
+
+### 12.1 Buscar zapatilla que no existe (debe fallar ❌ 404 Not Found)
+GET {{baseUrl}}/api/v1/zapatillas/999
+
+### 12.2 Modificar zapatilla que no existe (debe fallar ❌ 404 Not Found)
+PUT {{baseUrl}}/api/v1/zapatillas/999
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "precio": 99.99,
+  "stock": 10
+}
+
+### 12.3 Acceso con token inválido (debe fallar ❌ 401 Unauthorized)
+GET {{baseUrl}}/api/v1/users/me
+Authorization: Bearer token_invalido_123
+
+### ==============================================
+### 13. PAGINACIÓN Y FILTROS
+### ==============================================
+
+### 13.1 Zapatillas con paginación
+GET {{baseUrl}}/api/v1/zapatillas?page=0&size=2
+
+### 13.2 Zapatillas ordenadas
+GET {{baseUrl}}/api/v1/zapatillas?page=0&size=10&sort=precio,desc
+
+### 13.3 Filtrar por marca y tipo
+GET {{baseUrl}}/api/v1/zapatillas?marca=Nike&tipo=Running
+
+### ==============================================
+### NOTAS:
+### ==============================================
+###
+### ✅ = Debe FUNCIONAR (200/201/204)
+### ❌ = Debe FALLAR con error apropiado (401/403/400/404)
+###
+### Códigos de respuesta esperados:
+### - 200 OK: Operación exitosa
+### - 201 Created: Recurso creado
+### - 204 No Content: Eliminación exitosa
+### - 400 Bad Request: Datos inválidos
+### - 401 Unauthorized: Sin token o token inválido
+### - 403 Forbidden: Sin permisos
+### - 404 Not Found: Recurso no encontrado
+###
+### ==============================================

@@ -39,10 +39,10 @@ public class Zapatilla {
     @Column(nullable = false)
     private Integer stock;
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "created_at")
     private LocalDateTime createdAt;
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, name = "updated_at")
     private LocalDateTime updatedAt;
     @Column(unique = true, nullable = false, updatable = false,
             columnDefinition = "UUID")
