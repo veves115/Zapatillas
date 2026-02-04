@@ -26,7 +26,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <lombok.version>1.18.30</lombok.version>
-        <pebble.version>3.2.2</pebble.version>
+        <pebble.version>4.1.0</pebble.version>
         <webjars-locator.version>1.1.0</webjars-locator.version>
         <bootstrap.version>5.3.8</bootstrap.version>
         <bootstrap-icons.version>1.13.1</bootstrap-icons.version>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>io.pebbletemplates</groupId>
             <artifactId>pebble-spring-boot-starter</artifactId>
-            <version>3.2.2</version>
+            <version>4.1.0</version>
         </dependency>
 
         <!-- Spring Boot DevTools -->
@@ -207,8 +207,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>22</source>
-                    <target>22</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <annotationProcessorPaths>
                         <!-- Lombok Annotation Processor -->
                         <path>
