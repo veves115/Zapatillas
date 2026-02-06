@@ -6,11 +6,16 @@ import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaUpdateDto;
 import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaNotFoundException;
 import es.pabloab.zapatillas.rest.zapatillas.services.ZapatillasService;
+import es.pabloab.zapatillas.utils.pagination.PageResponse;
+import es.pabloab.zapatillas.utils.pagination.PaginationLinksUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +24,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,17 +48,42 @@ import java.util.Map;
 public class ZapatillasRestController {
 
     private final ZapatillasService service;
+    private final PaginationLinksUtils paginationLinksUtils;
 
     /**
      * Obtiene todas las zapatillas (paginadas).
      * Acceso: Todos los usuarios autenticados pueden ver zapatillas.
      */
     @GetMapping()
-    public ResponseEntity<Page<ZapatillaResponseDto>> getAll(
+    public ResponseEntity<PageResponse<ZapatillaResponseDto>> getAll(
             @RequestParam(required = false) String marca,
-            @RequestParam(required = false) String tipo, Pageable pageable) {
-        log.info("Buscando zapatillas por marca={} tipo={}", marca, tipo,pageable);
-        return ResponseEntity.ok(service.findAll(marca, tipo,pageable));
+            @RequestParam(required = false) String tipo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10")int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            HttpServletRequest request){
+        log.info("Buscando zapatillas por marca={} tipo={}", marca, tipo);
+
+        //1.Construimos el Sort a partir de los parámetros
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        //2. Construimos el Pageable con page + size + sort
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //3. LLamamos al servicio
+        Page<ZapatillaResponseDto> pageResult = service.findAll(marca, tipo, pageable);
+
+        //4. Generamos la cabecera Link usando la URL de la petición actual
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString());
+        String linkHeader = paginationLinksUtils.createLinkHeader(pageResult, uriBuilder);
+
+        //5. Devolvemos PageResponse + cabecera Link
+        return ResponseEntity.ok()
+                .header("link", linkHeader)
+                .body(PageResponse.of(pageResult, sortBy, direction));
     }
 
     /**
