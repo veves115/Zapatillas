@@ -4,19 +4,15 @@ import es.pabloab.zapatillas.rest.auth.dto.AuthResponseDto;
 import es.pabloab.zapatillas.rest.auth.dto.LogingDto;
 import es.pabloab.zapatillas.rest.auth.dto.RegisterDto;
 import es.pabloab.zapatillas.rest.auth.services.AuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controlador REST para autenticación de usuarios.
@@ -34,6 +30,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Autenticación", description = "Login y registro de usuarios")
 public class UserAuthController {
 
     private final AuthenticationService authenticationService;
@@ -44,6 +41,8 @@ public class UserAuthController {
      * @param registerDto Datos del nuevo usuario (validados con @Valid)
      * @return Respuesta con token JWT y datos del usuario
      */
+    @Operation(summary = "Registrar usuario", description = "Crea un nuevo usuario y devuelve token JWT")
+    @ApiResponse(responseCode = "201", description = "Usuario registrado")
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterDto registerDto) {
         log.info("Solicitud de registro para username: {}", registerDto.getUsername());
@@ -60,6 +59,7 @@ public class UserAuthController {
      * @param loginDto Credenciales del usuario (validadas con @Valid)
      * @return Respuesta con token JWT y datos del usuario
      */
+    @Operation(summary = "Iniciar sesión", description = "Autentica usuario y devuelve token JWT")
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LogingDto loginDto) {
         log.info("Solicitud de login para username: {}", loginDto.getUsername());
@@ -70,39 +70,4 @@ public class UserAuthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Manejador de excepciones de validación.
-     *
-     * Se ejecuta automáticamente cuando hay errores en las validaciones
-     * de los DTOs (@NotBlank, @Email, @Length, etc.)
-     *
-     * @param ex Excepción de validación
-     * @return Detalle del problema con los errores de validación
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
-        log.warn("Errores de validación en la petición");
-
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-
-        BindingResult result = ex.getBindingResult();
-        problemDetail.setDetail(
-                "Falló la validación para el objeto='" + result.getObjectName() +
-                        "'. Núm. errores: " + result.getErrorCount()
-        );
-
-        // Crear mapa con los errores campo por campo
-        Map<String, String> errores = new HashMap<>();
-        result.getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errores.put(fieldName, errorMessage);
-        });
-
-        problemDetail.setProperty("errores", errores);
-
-        log.warn("Errores de validación: {}", errores);
-        return problemDetail;
-    }
 }

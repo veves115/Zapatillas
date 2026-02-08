@@ -6,22 +6,18 @@ import es.pabloab.zapatillas.rest.cliente.dto.ClienteResponseDto;
 import es.pabloab.zapatillas.rest.cliente.dto.ClienteUpdateDto;
 import es.pabloab.zapatillas.rest.cliente.services.ClienteService;
 import es.pabloab.zapatillas.rest.user.models.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controlador REST para gestionar clientes.
@@ -50,6 +46,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/v1/usuarios")
 @Slf4j
+@Tag(name = "Clientes", description = "Gestión de clientes")
 public class ClientesRestController {
     private final ClienteService service;
 
@@ -63,6 +60,7 @@ public class ClientesRestController {
      * Acceso: Todos los usuarios autenticados pueden ver el listado completo.
      * (Se considera un catálogo público para usuarios autenticados)
      */
+    @Operation(summary = "Listar clientes", description = "Obtiene todos los clientes con paginación")
     @GetMapping
     public ResponseEntity<Page<ClienteResponseDto>> getAll(Pageable pageable){
         log.info("GET /api/v1/usuarios - Obteniendo todos los clientes");
@@ -80,6 +78,7 @@ public class ClientesRestController {
      * @return El cliente si tiene permisos
      * @throws AccessDeniedException si un USER intenta ver un cliente que no es el suyo
      */
+    @Operation(summary = "Obtener cliente por ID", description = "ADMIN ve cualquiera, USER solo el suyo")
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> getById(@PathVariable Long id) {
         log.info("GET /api/v1/usuarios/{} - Usuario intentando acceder", id);
@@ -120,6 +119,8 @@ public class ClientesRestController {
      * @PreAuthorize verifica que el usuario tenga rol ADMIN antes de ejecutar el método.
      * Si no tiene el rol, Spring Security lanza AccessDeniedException (403 Forbidden).
      */
+    @Operation(summary = "Crear cliente", description = "Solo ADMIN")
+    @ApiResponse(responseCode = "201", description = "Cliente creado")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponseDto> create(@Valid @RequestBody ClienteCreateDto dto){
@@ -140,6 +141,7 @@ public class ClientesRestController {
      * @return El cliente actualizado
      * @throws AccessDeniedException si un USER intenta modificar un cliente que no es el suyo
      */
+    @Operation(summary = "Actualizar cliente", description = "ADMIN cualquiera, USER solo el suyo")
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> update(
             @PathVariable Long id,
@@ -177,6 +179,8 @@ public class ClientesRestController {
      *
      * Acceso: Solo ADMIN puede eliminar clientes.
      */
+    @Operation(summary = "Eliminar cliente", description = "Solo ADMIN")
+    @ApiResponse(responseCode = "204", description = "Cliente eliminado")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete (@PathVariable Long id){
@@ -185,29 +189,4 @@ public class ClientesRestController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    /**
-     * Maneja excepciones de validación.
-     *
-     * Este método se ejecuta automáticamente cuando hay errores de validación
-     * en los DTOs (anotaciones @Valid, @NotBlank, @Email, etc.)
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        BindingResult bindingResult = ex.getBindingResult();
-
-        problemDetail.setDetail("Falló la validación para el objeto='" + bindingResult.getObjectName() +
-                "'. Número de errores: " + bindingResult.getErrorCount());
-
-        Map<String,String> errors = new HashMap<>();
-        bindingResult.getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        problemDetail.setProperty("errores", errors);
-
-        return problemDetail;
-    }
 }

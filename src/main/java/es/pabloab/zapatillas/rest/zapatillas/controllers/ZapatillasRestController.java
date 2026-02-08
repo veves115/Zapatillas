@@ -8,6 +8,9 @@ import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaNotFoundExcepti
 import es.pabloab.zapatillas.rest.zapatillas.services.ZapatillasService;
 import es.pabloab.zapatillas.utils.pagination.PageResponse;
 import es.pabloab.zapatillas.utils.pagination.PaginationLinksUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controlador REST para gestionar zapatillas.
@@ -45,6 +41,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/zapatillas")
+@Tag(name = "Zapatillas", description = "Gestión de zapatillas")
 public class ZapatillasRestController {
 
     private final ZapatillasService service;
@@ -54,6 +51,7 @@ public class ZapatillasRestController {
      * Obtiene todas las zapatillas (paginadas).
      * Acceso: Todos los usuarios autenticados pueden ver zapatillas.
      */
+    @Operation(summary = "Listar zapatillas", description = "Obtiene todas las zapatillas con paginación y filtros opcionales")
     @GetMapping()
     public ResponseEntity<PageResponse<ZapatillaResponseDto>> getAll(
             @RequestParam(required = false) String marca,
@@ -90,6 +88,9 @@ public class ZapatillasRestController {
      * Obtiene una zapatilla por su ID.
      * Acceso: Todos los usuarios autenticados pueden ver zapatillas.
      */
+    @Operation(summary = "Obtener zapatilla por ID")
+    @ApiResponse(responseCode = "200", description = "Zapatilla encontrada")
+    @ApiResponse(responseCode = "404", description = "Zapatilla no encontrada")
     @GetMapping("/{id}")
     public ResponseEntity<ZapatillaResponseDto> getById(@PathVariable Long id) throws ZapatillaNotFoundException {
         log.info("Buscando zapatilla por id={}", id);
@@ -104,6 +105,8 @@ public class ZapatillasRestController {
      * hasRole() es una función de Spring Security que verifica si el usuario tiene
      * la autoridad "ROLE_ADMIN" (Spring Security automáticamente añade el prefijo "ROLE_").
      */
+    @Operation(summary = "Crear zapatilla", description = "Solo ADMIN")
+    @ApiResponse(responseCode = "201", description = "Zapatilla creada")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto> create(@Valid @RequestBody ZapatillaCreateDto dto) {
@@ -116,6 +119,7 @@ public class ZapatillasRestController {
      * Actualiza completamente una zapatilla.
      * Acceso: Solo ADMIN puede modificar zapatillas.
      */
+    @Operation(summary = "Actualizar zapatilla completa", description = "Solo ADMIN")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto> update(
@@ -129,6 +133,7 @@ public class ZapatillasRestController {
      * Actualiza parcialmente una zapatilla.
      * Acceso: Solo ADMIN puede modificar zapatillas.
      */
+    @Operation(summary = "Actualizar zapatilla parcialmente", description = "Solo ADMIN")
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto> updatePartial(@PathVariable Long id, @Valid @RequestBody
@@ -141,6 +146,8 @@ public class ZapatillasRestController {
      * Elimina una zapatilla.
      * Acceso: Solo ADMIN puede borrar zapatillas.
      */
+    @Operation(summary = "Eliminar zapatilla", description = "Solo ADMIN")
+    @ApiResponse(responseCode = "204", description = "Zapatilla eliminada")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto>delete(@PathVariable Long id) {
@@ -149,22 +156,5 @@ public class ZapatillasRestController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-
-        BindingResult bindingResult = ex.getBindingResult();
-        problemDetail.setDetail("Falló la validación para el objeto='" + bindingResult.getObjectName() +
-                "'.Número de errores: " + bindingResult.getErrorCount());
-        Map<String, String> errors = new HashMap<>();
-        bindingResult.getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        problemDetail.setProperty("errores", errors);
-        return problemDetail;
-    }
 }
 

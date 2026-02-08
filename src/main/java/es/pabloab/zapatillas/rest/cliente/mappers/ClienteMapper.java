@@ -23,7 +23,7 @@ public class ClienteMapper {
         return Cliente.builder()
                 .id(cliente.getId())
                 .nombre(dto.getNombre()!= null ? dto.getNombre() : cliente.getNombre())
-                .email(dto.getEmail()!= null ? dto.getNombre() : cliente.getEmail())
+                .email(dto.getEmail()!= null ? dto.getEmail() : cliente.getEmail())
                 .createdAt(cliente.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .build();

@@ -5,21 +5,15 @@ import es.pabloab.zapatillas.rest.user.dto.UserResponseDto;
 import es.pabloab.zapatillas.rest.user.dto.UserUpdateDto;
 import es.pabloab.zapatillas.rest.user.models.User;
 import es.pabloab.zapatillas.rest.user.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controlador REST para gestionar perfiles de usuario.
@@ -35,6 +29,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("api/v1/users")
+@Tag(name = "Usuarios", description = "Gestión de perfiles de usuario")
 public class UsersRestController {
     
     private final UserService userService;
@@ -47,6 +42,7 @@ public class UsersRestController {
      * 
      * Acceso: Todos los usuarios autenticados pueden ver su propio perfil.
      */
+    @Operation(summary = "Obtener mi perfil")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMyProfile() {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -67,6 +63,7 @@ public class UsersRestController {
      * 1. Si el usuario es ADMIN, puede ver cualquier perfil
      * 2. Si el usuario es USER, solo puede ver su propio perfil
      */
+    @Operation(summary = "Obtener usuario por ID", description = "ADMIN ve cualquiera, USER solo el suyo")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -92,6 +89,7 @@ public class UsersRestController {
      * 
      * Acceso: Todos los usuarios autenticados pueden modificar su propio perfil.
      */
+    @Operation(summary = "Actualizar mi perfil")
     @PutMapping("/me")
     public ResponseEntity<UserResponseDto> updateMyProfile(@Valid @RequestBody UserUpdateDto dto) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -108,6 +106,7 @@ public class UsersRestController {
      * 
      * Acceso: Un usuario puede modificar su propio perfil, ADMIN puede modificar cualquier perfil.
      */
+    @Operation(summary = "Actualizar usuario por ID", description = "ADMIN cualquiera, USER solo el suyo")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable Long id,
@@ -127,27 +126,4 @@ public class UsersRestController {
         throw new AccessDeniedException("No tienes permiso para modificar este perfil");
     }
 
-    /**
-     * Maneja excepciones de validación.
-     * 
-     * Este método se ejecuta automáticamente cuando hay errores de validación
-     * en los DTOs (anotaciones @Valid, @NotBlank, etc.)
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        BindingResult bindingResult = ex.getBindingResult();
-        problemDetail.setDetail("Falló la validación para el objeto='" + bindingResult.getObjectName() +
-                "'. Número de errores: " + bindingResult.getErrorCount());
-        
-        Map<String, String> errors = new HashMap<>();
-        bindingResult.getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        problemDetail.setProperty("errores", errors);
-        return problemDetail;
-    }
 }
