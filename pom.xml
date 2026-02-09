@@ -72,6 +72,12 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
+        <!-- ===== GRAPHQL ====== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-graphql</artifactId>
+        </dependency>
+
         <!-- ===== BASES DE DATOS ===== -->
 
         <!-- H2 Database: Base de datos en memoria (desarrollo) -->

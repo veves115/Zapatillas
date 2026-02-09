@@ -17,11 +17,14 @@ import java.util.UUID;
 public interface ZapatillasRepository extends JpaRepository<Zapatilla, Long> {
     Page<Zapatilla> findAllByMarcaContainingIgnoreCase(String marca, Pageable pageable);
     Page<Zapatilla> findAllByTipoContainingIgnoreCase(String tipo, Pageable pageable);
+    List<Zapatilla> findAllByMarcaContainingIgnoreCase(String marca);
+    List<Zapatilla> findAllByTipoContainingIgnoreCase(String tipo);
     Page<Zapatilla> findAllByMarcaContainingIgnoreCaseAndTipoContainingIgnoreCase(
             String marca,
             String tipo,
             Pageable pageable
     );
+
 
     Optional<Zapatilla> findByUuid(UUID uuid);
 

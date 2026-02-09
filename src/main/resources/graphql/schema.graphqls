@@ -1,0 +1,43 @@
+# ==========================================================================
+# ESQUEMA GRAPHQL PARA ZAPATILLA
+# ==========================================================================
+# Este esquema permite consultar zapatillas.
+# Adaptado del esquema de Tarjetas del proyecto de referencia.
+#
+# RECORDATORIO DE NOTACIÓN:
+# - Campo obligatorio: 'nombre: String!' (no puede ser nulo)
+# - Lista obligatoria de elementos obligatorios: '[Zapatilla!]!'
+# - ID! es el tipo escalar especial para identificadores
+# ==========================================================================
+
+# --- CONSULTAS DISPONIBLES ---
+type Query {
+    # Devuelve la lista completa de todas las zapatillas
+    zapatillas: [Zapatilla!]!
+
+    # Busca una zapatilla por su ID
+    zapatillaById(id: ID!): Zapatilla
+
+    # Busca zapatillas por marca (búsqueda parcial, case insensitive)
+    zapatillasByMarca(marca: String!): [Zapatilla!]!
+
+    # Busca zapatillas por tipo (búsqueda parcial, case insensitive)
+    zapatillasByTipo(tipo: String!): [Zapatilla!]!
+}
+
+# --- TIPO ZAPATILLA ---
+# Representa una zapatilla con todos sus atributos
+type Zapatilla {
+    id: ID!                    # Identificador único (Long en Java)
+    marca: String!             # Marca (ej: "Nike", "Adidas")
+    modelo: String!            # Modelo (ej: "Air Max 90")
+    codigoProducto: String!    # Código único del producto (ej: "NI1234KE")
+    talla: Float!              # Talla numérica (ej: 42.0)
+    color: String!             # Color principal
+    tipo: String!              # Tipo/categoría (ej: "Running", "Casual")
+    precio: Float!             # Precio en euros
+    stock: Int!                # Unidades disponibles
+    uuid: String!              # UUID único
+    createdAt: String!         # Fecha de creación (ISO 8601)
+    updatedAt: String!         # Fecha de última modificación (ISO 8601)
+}

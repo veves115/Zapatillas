@@ -70,6 +70,8 @@ public class SecurityConfig {
                         // Endpoints públicos (no requieren autenticación)
                         .requestMatchers("/api/v1/auth/**","/api/*/auth/**").permitAll() // Login y registro
                         .requestMatchers(HttpMethod.GET,"/api/v1/zapatillas/**").permitAll()
+                        .requestMatchers("/graphql/**").permitAll() // Endpoint GraphQL
+                        .requestMatchers("/graphiql/**").permitAll() // Playground GraphiQL
                         .requestMatchers("/h2-console/**").permitAll() // Consola H2 (solo desarrollo)
                         .requestMatchers("/ws/**").permitAll() // WebSockets
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger

@@ -1,0 +1,62 @@
+### Todas las zapatillas
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    zapatillas {
+        id
+        marca
+        modelo
+        codigoProducto
+        talla
+        color
+        tipo
+        precio
+        stock
+    }
+}
+
+### Zapatilla por Id
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    zapatillaById(id: "1") {
+        marca
+        modelo
+        precio
+        stock
+    }
+}
+
+### Zapatillas por marca
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    zapatillasByMarca(marca: "Nike") {
+        id
+        modelo
+        precio
+        stock
+    }
+}
+
+### Zapatillas por tipo
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    zapatillasByTipo(tipo: "Running") {
+        id
+        marca
+        modelo
+        precio
+    }
+}
+
+### Solo marca y precio (demuestra que GraphQL devuelve SOLO lo que pides)
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    zapatillas {
+        marca
+        precio
+    }
+}

@@ -1,23 +1,23 @@
 ### getAll
-GET http://localhost:8080/api/v1/zapatillas
+GET http://localhost:3000/api/v1/zapatillas
 
 ### getAll (RequestParam - marca)
-GET http://localhost:8080/api/v1/zapatillas?marca=Nike
+GET http://localhost:3000/api/v1/zapatillas?marca=Nike
 
 ### getAll (RequestParam - marca y tipo)
-GET http://localhost:8080/api/v1/zapatillas?marca=Adidas&tipo=Running
+GET http://localhost:3000/api/v1/zapatillas?marca=Adidas&tipo=Running
 
 ### getAll (RequestParam - tipo)
-GET http://localhost:8080/api/v1/zapatillas?tipo=Casual
+GET http://localhost:3000/api/v1/zapatillas?tipo=Casual
 
 ### getById
-GET http://localhost:8080/api/v1/zapatillas/1
+GET http://localhost:3000/api/v1/zapatillas/1
 
 ### getById (una que no existe)
-GET http://localhost:8080/api/v1/zapatillas/3
+GET http://localhost:3000/api/v1/zapatillas/3
 
 ### Nueva zapatilla
-POST http://localhost:8080/api/v1/zapatillas
+POST http://localhost:3000/api/v1/zapatillas
 Content-Type: application/json
 
 {
@@ -32,7 +32,7 @@ Content-Type: application/json
 }
 
 ### Actualiza zapatilla
-PUT http://localhost:8080/api/v1/zapatillas/1
+PUT http://localhost:3000/api/v1/zapatillas/1
 Content-Type: application/json
 
 {
@@ -47,4 +47,4 @@ Content-Type: application/json
 }
 
 ### Delete zapatilla
-DELETE http://localhost:8080/api/v1/zapatillas/1
+DELETE http://localhost:3000/api/v1/zapatillas/1
