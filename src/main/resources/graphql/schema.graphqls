@@ -41,3 +41,48 @@ type Zapatilla {
     createdAt: String!         # Fecha de creación (ISO 8601)
     updatedAt: String!         # Fecha de última modificación (ISO 8601)
 }
+
+# --- TIPOS INPUT ---
+#Los tipos input son como DTOs: definen qué datos deben enviar el cliente para crear o actualizar recursos
+
+#Input para crear una zapatilla (todos los campos son obligatorios)
+input CreateZapatillaInput{
+    marca: String!
+    modelo: String!
+    codigoProducto: String!
+    talla: Float!
+    color: String!
+    tipo: String!
+    precio: Float!
+    stock: Int!
+}
+
+#Input para actualizar una zapatilla (todos los campos son opcionales)
+# Solo se actualizan los datos que el cliente envíe
+input UpdateZapatillaInput{
+    codigoProducto: String
+    talla: Float
+    color: String
+    tipo: String
+    precio: Float
+    stock: Int
+}
+
+# --- MUTACIONES DISPONIBLES ---
+type Mutation{
+    #Crea una nueva zapatilla
+    #Parámetro: input(obligatorio) - Datos de la zapatilla a crear
+    #Retorna: La zapatilla creada con todos sus campos (incluido el ID generado)
+    createZapatilla(input: CreateZapatillaInput): Zapatilla!
+
+    # Actualiza una zapatilla existente
+    # Parámetros: id (obligatorio) - ID de la zapatilla a actualizar
+    #             input (obligatorio) - Campos a modificar
+    # Retorna: La zapatilla actualizada, o null si no existe
+    updateZapatilla(id: ID!, input: UpdateZapatillaInput!): Zapatilla
+
+    # Elimina una zapatilla por su ID
+    # Parámetro: id (obligatorio) - ID de la zapatilla a eliminar
+    # Retorna: true si se eliminó correctamente
+    deleteZapatilla(id: ID!): Boolean!
+}
