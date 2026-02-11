@@ -6,6 +6,7 @@ import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaUpdateDto;
 import es.pabloab.zapatillas.rest.zapatillas.dto.websocket.ZapatillaNotificacion;
 import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaBadUuidException;
+import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaNotFoundException;
 import es.pabloab.zapatillas.rest.zapatillas.mappers.ZapatillaMapper;
 import es.pabloab.zapatillas.rest.zapatillas.models.Zapatilla;
 import es.pabloab.zapatillas.rest.zapatillas.repositories.ZapatillasRepository;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -47,17 +47,17 @@ public class ZapatillasServiceImpl implements ZapatillasService {
     @Override
     public ZapatillaResponseDto findById(Long id) {
         Zapatilla zapatilla = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new ZapatillaNotFoundException(id));
 
         return mapper.toResponseDto(zapatilla);
     }
 
     @Override
-    public ZapatillaResponseDto findByUuid(String uuid) throws ZapatillaBadUuidException {
+    public ZapatillaResponseDto findByUuid(String uuid) {
         try {
             UUID u = UUID.fromString(uuid);
             Zapatilla zapatilla = repository.findByUuid(u)
-                    .orElseThrow(() -> new NoSuchElementException());
+                    .orElseThrow(() -> new ZapatillaNotFoundException(uuid));
             return mapper.toResponseDto(zapatilla);
         } catch (IllegalArgumentException e) {
             throw new ZapatillaBadUuidException(uuid);
@@ -89,7 +89,7 @@ public class ZapatillasServiceImpl implements ZapatillasService {
         log.info("Actualizando zapatilla por id: {}", id);
 
         Zapatilla actual = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new ZapatillaNotFoundException(id));
 
         Zapatilla actualizada = mapper.toZapatilla(dto, actual);
         Zapatilla guardada = repository.save(actualizada);
@@ -107,7 +107,7 @@ public class ZapatillasServiceImpl implements ZapatillasService {
         log.info("Borrando zapatilla por id: {}", id);
 
         repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new ZapatillaNotFoundException(id));
 
         repository.deleteById(id);
 

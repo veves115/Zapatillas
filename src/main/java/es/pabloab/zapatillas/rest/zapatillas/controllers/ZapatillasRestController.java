@@ -4,7 +4,6 @@ package es.pabloab.zapatillas.rest.zapatillas.controllers;
 import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaCreateDto;
 import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaResponseDto;
 import es.pabloab.zapatillas.rest.zapatillas.dto.ZapatillaUpdateDto;
-import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaNotFoundException;
 import es.pabloab.zapatillas.rest.zapatillas.services.ZapatillasService;
 import es.pabloab.zapatillas.utils.pagination.PageResponse;
 import es.pabloab.zapatillas.utils.pagination.PaginationLinksUtils;
@@ -91,7 +90,7 @@ public class ZapatillasRestController {
      * Acceso: Todos los usuarios autenticados pueden ver zapatillas.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ZapatillaResponseDto> getById(@PathVariable Long id) throws ZapatillaNotFoundException {
+    public ResponseEntity<ZapatillaResponseDto> getById(@PathVariable Long id)  {
         log.info("Buscando zapatilla por id={}", id);
         return ResponseEntity.ok(service.findById(id));
     }
@@ -120,7 +119,7 @@ public class ZapatillasRestController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody ZapatillaUpdateDto dto) throws ZapatillaNotFoundException {
+            @Valid @RequestBody ZapatillaUpdateDto dto)  {
         log.info("Actualizando zapatilla id={} con datos={}", id, dto);
         return ResponseEntity.ok(service.update(id, dto));
     }
@@ -132,7 +131,7 @@ public class ZapatillasRestController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZapatillaResponseDto> updatePartial(@PathVariable Long id, @Valid @RequestBody
-    ZapatillaUpdateDto dto) throws ZapatillaNotFoundException {
+    ZapatillaUpdateDto dto)  {
         log.info("Actualizando parcialmente zapatilla id={}", id);
         return ResponseEntity.ok(service.update(id, dto));
     }
