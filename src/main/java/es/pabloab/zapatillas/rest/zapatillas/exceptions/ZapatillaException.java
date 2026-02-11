@@ -1,6 +1,6 @@
 package es.pabloab.zapatillas.rest.zapatillas.exceptions;
 
-public class ZapatillaException extends Exception {
+public class ZapatillaException extends RuntimeException {
     public ZapatillaException(String mensaje) {
         super(mensaje);
     }
