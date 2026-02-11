@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import java.util.NoSuchElementException;
+import es.pabloab.zapatillas.rest.zapatillas.exceptions.ZapatillaNotFoundException;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
@@ -176,7 +176,7 @@ class ZapatillasRestControllerTest {
         @Test
         @DisplayName("Debe devolver 404 cuando no existe")
         void getByIdZapatillaNotFound() throws Exception {
-            given(service.findById(999L)).willThrow(new NoSuchElementException());
+            given(service.findById(999L)).willThrow(new ZapatillaNotFoundException(999L));
             mockMvc.perform(
                             get("/api/v1/zapatillas/{id}", 999L)
                     )
@@ -356,7 +356,7 @@ class ZapatillasRestControllerTest {
         @Test
         @DisplayName("Debe devolver 404 cuando no existe")
         void putZapatillaNoExiste() throws Exception {
-            given(service.update(eq(999L), any(ZapatillaUpdateDto.class))).willThrow(new NoSuchElementException());
+            given(service.update(eq(999L), any(ZapatillaUpdateDto.class))).willThrow(new ZapatillaNotFoundException(999L));
             mockMvc.perform(
                             put("/api/v1/zapatillas/{id}", 999L)
                                     .contentType(MediaType.APPLICATION_JSON)
