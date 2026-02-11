@@ -31,7 +31,7 @@ VALUES ('New Balance', '574', 'NB3456CE', 42.5, 'Gris', 'Casual', 89.99, 20,CURR
 -- Contraseña hasheada con BCrypt (10 rondas)
 INSERT INTO usuarios (nombre, apellidos, username, email, password, deleted, cliente_id, created_at, updated_at)
 VALUES ('Admin', 'Sistema', 'admin', 'admin@zapatillas.com',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        '$2a$10$tSzozzqUGp4mDO8zIsHi2uatUZNkJRAkrDf5Qsh1NaFLiP7Tog4MC',
         false, null, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Asignar rol ADMIN al usuario admin
@@ -45,7 +45,7 @@ WHERE username = 'admin';
 -- Password: user123
 INSERT INTO usuarios (nombre, apellidos, username, email, password, deleted, cliente_id, created_at, updated_at)
 VALUES ('Juan', 'Pérez', 'user1', 'juan@example.com',
-        '$2a$10$5UR5me5.E5x7zCKJLxwmL.cLdQl5L3A2EjqHI0lRvVJv7p8u8u8u8',
+        '$2a$10$o0LNRV4mtmfWHGO/5htv4OnYQ/vZzPCh0w22Z/JViO0BAizEuHdnq',
         false, null, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Asignar rol USER al usuario user1
@@ -59,7 +59,7 @@ WHERE username = 'user1';
 -- Password: user123
 INSERT INTO usuarios (nombre, apellidos, username, email, password, deleted, cliente_id, created_at, updated_at)
 VALUES ('María', 'García', 'user2', 'maria@example.com',
-        '$2a$10$5UR5me5.E5x7zCKJLxwmL.cLdQl5L3A2EjqHI0lRvVJv7p8u8u8u8',
+        '$2a$10$o0LNRV4mtmfWHGO/5htv4OnYQ/vZzPCh0w22Z/JViO0BAizEuHdnq',
         false, null, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Asignar rol USER al usuario user2
