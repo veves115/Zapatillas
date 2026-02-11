@@ -23,10 +23,10 @@ public class ZapatillaMapper {
                 .color(dto.getColor())
                 .tipo(dto.getTipo())
                 .precio(dto.getPrecio())
-                                .stock(dto.getStock())
-                                .uuid(UUID.randomUUID())
-                                .createdAt(LocalDateTime.now())
-                                .updatedAt(LocalDateTime.now())
+                .stock(dto.getStock())
+                .uuid(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
