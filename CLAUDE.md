@@ -91,7 +91,16 @@ Campos: `id`, `nombre`, `apellidos`, `direccion`, `email`, `telefono`, `usuario`
 ### Web (Pebble)
 | Metodo | Ruta | Descripcion |
 |--------|------|-------------|
-| GET | `/`, `/index` | Catalogo de zapatillas (HTML/Pebble, paginado) |
+| GET | `/`, `/index` | Redirige a /public/ |
+| GET | `/public/`, `/public/index` | Catalogo publico (HTML/Pebble, paginado) |
+| GET | `/auth/login` | Pagina de login |
+| GET | `/admin/zapatillas` | Panel admin: lista paginada con filtros |
+| GET | `/admin/zapatillas/{id}` | Admin: detalle de zapatilla |
+| GET | `/admin/zapatillas/new` | Admin: formulario crear zapatilla |
+| POST | `/admin/zapatillas/new` | Admin: procesar creacion |
+| GET | `/admin/zapatillas/{id}/edit` | Admin: formulario editar |
+| POST | `/admin/zapatillas/{id}/edit` | Admin: procesar edicion |
+| POST | `/admin/zapatillas/{id}/delete` | Admin: procesar borrado |
 
 ## GraphQL - Ficheros
 
@@ -110,18 +119,29 @@ src/main/java/.../graphql/controllers/
 
 ```
 src/main/resources/templates/
-  index.peb.html                              # Catalogo con cards, paginacion, badges stock
+  index.peb.html                              # Catalogo publico con cards, paginacion, badges stock
+  login.peb.html                              # Formulario de login (Spring Security form login)
+  error.peb.html                              # Pagina de error personalizada (404, 403, 500)
+  admin/zapatillas/
+    lista.peb.html                            # Panel admin: tabla con filtros y paginacion
+    detalle.peb.html                          # Admin: vista detallada de una zapatilla
+    form.peb.html                             # Admin: formulario crear/editar (reutilizable)
   fragments/
-    layout.peb.html                           # Layout base (head, navbar, footer, content block)
+    layout.peb.html                           # Layout base (head, navbar, messages, footer, bloques)
     head.peb.html                             # Meta, Bootstrap CSS, Bootstrap Icons, estilos custom
-    navbar.peb.html                           # Navbar con links a Inicio, API, H2, Swagger
+    navbar.peb.html                           # Navbar con links dinamicos segun autenticacion/rol
     footer.peb.html                           # Footer con nombre app y copyright
+    messages.peb.html                         # Flash messages (exito, error, info)
+    pager.peb.html                            # Paginacion reutilizable
     inputField.peb.html                       # Macro reutilizable para campos de formulario
 ```
 
 - Usa WebJars: Bootstrap 5.3.8, Bootstrap Icons 1.13.1
-- Controller: `ZonaPublicaController` en `web/controllers/`
-- Paginacion completa con navegacion por paginas
+- Controllers web: `ZonaPublicaController`, `LoginController`, `AdminController`, `CustomErrorController`
+- `GlobalControllerAdvice` inyecta 13 atributos globales (auth, csrf, dates, metadata)
+- SecurityConfig con 4 cadenas: API/JWT, Swagger, H2, Web/FormLogin
+- Zonas: `/public/**` (todos), `/app/**` (autenticados), `/admin/**` (ADMIN)
+- Paginacion reutilizable con fragment pager
 - Badges de stock: verde (>10), amarillo (1-10), rojo (0)
 
 ## WebSockets
