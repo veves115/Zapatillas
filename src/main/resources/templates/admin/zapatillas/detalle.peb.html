@@ -60,7 +60,7 @@
                 <table class="table">
                     <tr>
                         <th class="text-muted" style="width: 40%">Precio</th>
-                        <td><strong class="text-primary fs-4">{{ zapatilla.precio }} &euro;</strong></td>
+                        <td><strong class="text-primary fs-4">{{ zapatilla.precio | formatPrice }}</strong></td>
                     </tr>
                     <tr>
                         <th class="text-muted">Stock</th>
@@ -80,11 +80,11 @@
                     </tr>
                     <tr>
                         <th class="text-muted">Creado</th>
-                        <td>{{ zapatilla.createdAt }}</td>
+                        <td>{{ zapatilla.createdAt | formatDateTime }}</td>
                     </tr>
                     <tr>
                         <th class="text-muted">Actualizado</th>
-                        <td>{{ zapatilla.updatedAt }}</td>
+                        <td>{{ zapatilla.updatedAt | formatDateTime }}</td>
                     </tr>
                 </table>
             </div>

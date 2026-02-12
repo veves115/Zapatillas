@@ -1,0 +1,124 @@
+{# ============================================================================
+   PERFIL - Página de perfil del usuario autenticado
+   ============================================================================
+   Muestra los datos del usuario que ha iniciado sesión.
+
+   CONTROLLER: PerfilController → GET /app/perfil
+   VARIABLE: user (User entity con todos sus campos)
+
+   ¿POR QUÉ USAMOS user EN VEZ DE currentUser?
+   GlobalControllerAdvice inyecta "currentUser" en todas las plantillas,
+   pero el PerfilController también pasa "user" explícitamente.
+   Usamos "user" aquí porque viene directamente del controller y tiene
+   todos los campos de la entidad (id, email, roles, createdAt, etc.)
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
+
+{% block title %}Mi Perfil - {{ appName | default('Zapatillas') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-4"><i class="bi bi-person-circle"></i> Mi Perfil</h1>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-fill"></i>
+                    {{ user.nombre }} {{ user.apellidos }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {# Columna izquierda: datos personales #}
+                    <div class="col-md-6">
+                        <h5 class="text-muted mb-3">Datos personales</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 40%">
+                                    <i class="bi bi-person"></i> Nombre
+                                </th>
+                                <td>{{ user.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-person"></i> Apellidos
+                                </th>
+                                <td>{{ user.apellidos }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-at"></i> Username
+                                </th>
+                                <td><code>{{ user.username }}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-envelope"></i> Email
+                                </th>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    {# Columna derecha: datos de cuenta #}
+                    <div class="col-md-6">
+                        <h5 class="text-muted mb-3">Cuenta</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 40%">
+                                    <i class="bi bi-hash"></i> ID
+                                </th>
+                                <td>{{ user.id }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-shield"></i> Roles
+                                </th>
+                                <td>
+                                    {% for role in user.roles %}
+                                        {% if role.name() == "ADMIN" %}
+                                            <span class="badge bg-danger">{{ role }}</span>
+                                        {% else %}
+                                            <span class="badge bg-info">{{ role }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-check-circle"></i> Estado
+                                </th>
+                                <td>
+                                    {% if user.enabled %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Desactivado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">
+                                    <i class="bi bi-calendar"></i> Creado
+                                </th>
+                                <td>{{ user.createdAt | formatDateTime }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex gap-2">
+                <a href="/public/" class="btn btn-outline-primary">
+                    <i class="bi bi-house-door"></i> Ir al catálogo
+                </a>
+                {% if isAdmin %}
+                <a href="/admin/zapatillas" class="btn btn-outline-warning">
+                    <i class="bi bi-shield-lock"></i> Panel Admin
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

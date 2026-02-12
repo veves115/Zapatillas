@@ -53,7 +53,7 @@
 
                     <div class="mb-3">
                         <small class="text-muted">Precio:</small>
-                        <h4 class="text-primary mb-0">{{ zapatilla.precio }} &euro;</h4>
+                        <h4 class="text-primary mb-0">{{ zapatilla.precio | formatPrice }}</h4>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center">
@@ -76,7 +76,7 @@
                     <small class="text-muted">
                         <i class="bi bi-calendar"></i>
                         {% if zapatilla.createdAt is not null %}
-                            Creado: {{ zapatilla.createdAt }}
+                            Creado: {{ zapatilla.createdAt | formatDate }}
                         {% endif %}
                     </small>
                 </div>

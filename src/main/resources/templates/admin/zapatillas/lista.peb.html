@@ -85,7 +85,7 @@
                 <td><code>{{ z.codigoProducto }}</code></td>
                 <td>{{ z.talla }}</td>
                 <td><span class="badge bg-primary">{{ z.tipo }}</span></td>
-                <td><strong>{{ z.precio }} &euro;</strong></td>
+                <td><strong>{{ z.precio | formatPrice }}</strong></td>
                 <td>
                     {# Badges de stock: mismo sistema de colores que el index #}
                     {% if z.stock > 10 %}
@@ -133,7 +133,7 @@
                                     <ul class="list-unstyled">
                                         <li><strong>{{ z.marca }} {{ z.modelo }}</strong></li>
                                         <li>Código: <code>{{ z.codigoProducto }}</code></li>
-                                        <li>Precio: {{ z.precio }} &euro;</li>
+                                        <li>Precio: {{ z.precio | formatPrice }}</li>
                                     </ul>
                                     <p class="text-danger mb-0">
                                         <i class="bi bi-exclamation-circle"></i>
