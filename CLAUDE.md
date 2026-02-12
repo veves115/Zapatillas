@@ -2,7 +2,12 @@
 
 ## Descripcion
 API REST de Zapatillas con Spring Boot 4.0.0, Java 21, Maven.
-Basado en el proyecto de referencia de tarjetas (carlosgs-iesquevedo/DWES25-26).
+Basado en el proyecto de referencia de tarjetas(https://github.com/veves115/DWES25-26.git).
+
+## Repositorio
+- GitHub: https://github.com/veves115/Zapatillas.git
+- Branch: master
+- 36+ commits
 
 ## Compilar y ejecutar
 
@@ -15,6 +20,7 @@ Basado en el proyecto de referencia de tarjetas (carlosgs-iesquevedo/DWES25-26).
 - App: http://localhost:3000
 - H2 Console: http://localhost:3000/h2-console
 - Swagger UI: http://localhost:3000/swagger-ui.html
+- GraphiQL: http://localhost:3000/graphiql
 
 ## Arquitectura
 
@@ -22,8 +28,9 @@ Basado en el proyecto de referencia de tarjetas (carlosgs-iesquevedo/DWES25-26).
 - **Patron**: Controller -> Service -> Repository con DTOs y Mappers
 - **Security**: JWT (HS256, 24h) + Spring Security con roles ADMIN y USER
 - **WebSockets**: STOMP sobre `/ws`, topic `/topic/zapatillas`
+- **GraphQL**: Queries + Mutations sobre `/graphql`, playground en `/graphiql`
 - **Templates**: Pebble 4.1.0 (`.peb.html`)
-- **DB**: H2 en memoria (`jdbc:h2:mem:zapatillas`, ddl-auto: create-drop)
+- **DB**: H2 en memoria (`jdbc:h2:mem:zapatillas`, ddl-auto: create-drop, defer-datasource-initialization: true)
 - **Puerto**: 3000
 - **Cache**: Simple in-memory
 - **Docs API**: SpringDoc OpenAPI 2.3.0
@@ -32,14 +39,15 @@ Basado en el proyecto de referencia de tarjetas (carlosgs-iesquevedo/DWES25-26).
 
 ```
 es.pabloab.zapatillas/
-  config/          # SecurityConfig, SwaggerConfig, WebSocketConfig, SecurityUtils
+  config/              # SecurityConfig, SwaggerConfig, WebSocketConfig, SecurityUtils
+  graphql/controllers/ # ZapatillaGraphQLController (queries + mutations)
   rest/
-    auth/          # Login y registro (JWT)
-    zapatillas/    # CRUD zapatillas + WebSocket controller
-    cliente/       # Gestion de clientes
-    user/          # Gestion de usuarios
+    auth/              # Login y registro (JWT)
+    zapatillas/        # CRUD zapatillas + WebSocket controller
+    cliente/           # Gestion de clientes
+    user/              # Gestion de usuarios
   utils/pagination/
-  web/controllers/ # Controlador web publico (Pebble)
+  web/controllers/     # ZonaPublicaController (Pebble templates)
 ```
 
 ## Entidades
@@ -53,49 +61,68 @@ Tipos validos: Running, Basketball, Training, Casual, Trail
 Campos: `id`, `nombre`, `apellidos`, `username` (unique), `email` (unique), `password`, `roles` (Set<Role>), `cliente` (OneToOne), `deleted`, `createdAt`, `updatedAt`
 
 ### Cliente
-Campos: `id`, `nombre` (100), `email` (150, unique), `createdAt`, `updatedAt`
+Campos: `id`, `nombre`, `apellidos`, `direccion`, `email`, `telefono`, `usuario` (OneToOne), `createdAt`, `updatedAt`
 
-## Endpoints REST
+## Endpoints principales
 
-### Zapatillas (`/api/v1/zapatillas`)
-| Metodo | Ruta | Acceso | Descripcion |
-|--------|------|--------|-------------|
-| GET | `/api/v1/zapatillas` | Publico | Listar (paginado, filtros: marca, tipo) |
-| GET | `/api/v1/zapatillas/{id}` | Publico | Obtener por ID |
-| POST | `/api/v1/zapatillas` | ADMIN | Crear |
-| PUT | `/api/v1/zapatillas/{id}` | ADMIN | Actualizar completo |
-| PATCH | `/api/v1/zapatillas/{id}` | ADMIN | Actualizar parcial |
-| DELETE | `/api/v1/zapatillas/{id}` | ADMIN | Eliminar |
-
-Parametros paginacion: `page`, `size` (default 10), `sortBy` (default "id"), `direction` (asc/desc)
-
-### Auth (`/api/v1/auth`)
-| Metodo | Ruta | Acceso | Descripcion |
-|--------|------|--------|-------------|
-| POST | `/api/v1/auth/register` | Publico | Registro |
-| POST | `/api/v1/auth/login` | Publico | Login (devuelve JWT) |
-
-### Users (`/api/v1/users`)
-| Metodo | Ruta | Acceso | Descripcion |
-|--------|------|--------|-------------|
-| GET | `/api/v1/users/me` | Autenticado | Perfil propio |
-| GET | `/api/v1/users/{id}` | ADMIN o propio | Obtener usuario |
-| PUT | `/api/v1/users/me` | Autenticado | Actualizar perfil |
-| PUT | `/api/v1/users/{id}` | ADMIN o propio | Actualizar usuario |
-
-### Clientes (`/api/v1/usuarios`)
-| Metodo | Ruta | Acceso | Descripcion |
-|--------|------|--------|-------------|
-| GET | `/api/v1/usuarios` | Autenticado | Listar (paginado) |
-| GET | `/api/v1/usuarios/{id}` | ADMIN o propio | Obtener |
-| POST | `/api/v1/usuarios` | ADMIN | Crear |
-| PUT | `/api/v1/usuarios/{id}` | ADMIN o propio | Actualizar |
-| DELETE | `/api/v1/usuarios/{id}` | ADMIN | Eliminar |
-
-### Web
+### REST API
 | Metodo | Ruta | Descripcion |
 |--------|------|-------------|
-| GET | `/`, `/index` | Catalogo de zapatillas (HTML/Pebble) |
+| GET | `/api/v1/zapatillas` | Listar (paginado, filtros marca/tipo) |
+| GET | `/api/v1/zapatillas/{id}` | Detalle por ID |
+| POST | `/api/v1/zapatillas` | Crear (ADMIN) |
+| PUT | `/api/v1/zapatillas/{id}` | Actualizar (ADMIN) |
+| PATCH | `/api/v1/zapatillas/{id}` | Actualizar parcial (ADMIN) |
+| DELETE | `/api/v1/zapatillas/{id}` | Eliminar (ADMIN) |
+| POST | `/api/v1/auth/login` | Login (devuelve JWT) |
+| POST | `/api/v1/auth/register` | Registro |
+
+### GraphQL
+| Tipo | Operacion | Descripcion |
+|------|-----------|-------------|
+| Query | `zapatillas` | Listar todas |
+| Query | `zapatillaById(id)` | Buscar por ID |
+| Query | `zapatillasByMarca(marca)` | Filtrar por marca |
+| Query | `zapatillasByTipo(tipo)` | Filtrar por tipo |
+| Mutation | `createZapatilla(input)` | Crear zapatilla |
+| Mutation | `updateZapatilla(id, input)` | Actualizar zapatilla |
+| Mutation | `deleteZapatilla(id)` | Eliminar zapatilla |
+
+### Web (Pebble)
+| Metodo | Ruta | Descripcion |
+|--------|------|-------------|
+| GET | `/`, `/index` | Catalogo de zapatillas (HTML/Pebble, paginado) |
+
+## GraphQL - Ficheros
+
+```
+src/main/resources/graphql/schema.graphqls    # Schema: tipos, queries, mutations, inputs
+src/main/java/.../graphql/controllers/
+  ZapatillaGraphQLController.java             # @QueryMapping + @MutationMapping
+```
+
+- Schema define: type Zapatilla, type Query, type Mutation, input CreateZapatillaInput, input UpdateZapatillaInput
+- Controller usa records internos para mapear inputs GraphQL
+- Reutiliza ZapatillaMapper y ZapatillasRepository existentes
+- Security: `/graphql` y `/graphiql/**` con permitAll() en SecurityConfig
+
+## Pebble Templates - Ficheros
+
+```
+src/main/resources/templates/
+  index.peb.html                              # Catalogo con cards, paginacion, badges stock
+  fragments/
+    layout.peb.html                           # Layout base (head, navbar, footer, content block)
+    head.peb.html                             # Meta, Bootstrap CSS, Bootstrap Icons, estilos custom
+    navbar.peb.html                           # Navbar con links a Inicio, API, H2, Swagger
+    footer.peb.html                           # Footer con nombre app y copyright
+    inputField.peb.html                       # Macro reutilizable para campos de formulario
+```
+
+- Usa WebJars: Bootstrap 5.3.8, Bootstrap Icons 1.13.1
+- Controller: `ZonaPublicaController` en `web/controllers/`
+- Paginacion completa con navegacion por paginas
+- Badges de stock: verde (>10), amarillo (1-10), rojo (0)
 
 ## WebSockets
 
@@ -110,7 +137,7 @@ Parametros paginacion: `page`, `size` (default 10), `sortBy` (default "id"), `di
 - JWT en header `Authorization: Bearer <TOKEN>`
 - Algoritmo HS256, expiracion 24h
 - Passwords con BCrypt
-- Endpoints publicos: GET zapatillas, auth, H2 console, Swagger, WebSocket, recursos estaticos
+- Endpoints publicos: GET zapatillas, auth, H2 console, Swagger, WebSocket, GraphQL, recursos estaticos
 - `SecurityUtils` ofrece helpers: `getCurrentUser()`, `isAdmin()`, `hasRole()`
 
 ## Tests
@@ -141,4 +168,13 @@ Frameworks: JUnit 5, Mockito, AssertJ, Spring Test (MockMvc), Spring Security Te
 - `crud-zapatillas.http` - Ejemplos REST API
 - `test-security.http` - Tests de seguridad
 - `ws.zapatillas.http` - Tests WebSocket
+- `http-client/graphql.http` - Ejemplos queries GraphQL
 - `Websockets.md` - Documentacion WebSocket
+
+## Notas tecnicas importantes
+- `data.sql` usa snake_case para columnas (Hibernate naming strategy): `codigo_producto`, `created_at`, `updated_at`
+- `data.sql` necesita `CURRENT_TIMESTAMP` explicito para timestamps y `RANDOM_UUID()` para uuid
+- `spring.jpa.defer-datasource-initialization=true` es obligatorio para que data.sql se ejecute despues de Hibernate crear las tablas
+- Repository tiene metodos con y sin Pageable: sin Pageable para GraphQL, con Pageable para REST
+- Pebble version en pom.xml: 4.1.0 (compatible con Spring Boot 4 / Spring 7)
+- Pebble config: `pebble.suffix=.peb.html`, `pebble.cache=false`
