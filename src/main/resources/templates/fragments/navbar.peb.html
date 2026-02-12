@@ -1,33 +1,110 @@
+
+{# ============================================================================
+   NAVBAR - Barra de navegación principal
+   ============================================================================
+   Este fragment se incluye en layout.peb.html con {% include "fragments/navbar" %}
+
+   VARIABLES QUE USA (inyectadas por GlobalControllerAdvice):
+   - appName: Nombre de la app ("zapatillas")
+   - isAuthenticated: boolean - ¿está logueado?
+   - isAdmin: boolean - ¿tiene rol ADMIN?
+   - username: String - Nombre completo del usuario
+   - csrfToken, csrfParamName: Para el formulario de logout (POST con CSRF)
+
+   ESTRUCTURA:
+   1. Logo + nombre de la app (siempre visible)
+   2. Links de navegación (zona pública)
+   3. Links condicionales según autenticación/rol
+   4. Botón login/logout
+   ============================================================================ #}
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="/">
+        {# Logo y nombre de la app #}
+        <a class="navbar-brand" href="/public/">
             <i class="bi bi-bag-fill"></i> {{ appName | default('Zapatillas') }}
         </a>
+
+        {# Botón hamburguesa para móviles (Bootstrap responsive) #}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            {# ---- LINKS IZQUIERDA (navegación principal) ---- #}
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/">
+                    <a class="nav-link" href="/public/">
                         <i class="bi bi-house-door"></i> Inicio
                     </a>
                 </li>
+
+                {# Link al panel admin: solo visible para ADMIN #}
+                {% if isAdmin %}
                 <li class="nav-item">
-                    <a class="nav-link" href="/api/v1/zapatillas">
-                        <i class="bi bi-list-ul"></i> API
+                    <a class="nav-link" href="/admin/zapatillas">
+                        <i class="bi bi-shield-lock"></i> Admin
                     </a>
                 </li>
+                {% endif %}
+
+                {# Link a "Mis Zapatillas": solo para usuarios autenticados #}
+                {% if isAuthenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="/h2-console" target="_blank">
-                        <i class="bi bi-database"></i> H2 Console
+                    <a class="nav-link" href="/app/perfil">
+                        <i class="bi bi-person"></i> Mi Perfil
                     </a>
                 </li>
+                {% endif %}
+            </ul>
+
+            {# ---- LINKS DERECHA (herramientas + sesión) ---- #}
+            <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/swagger-ui.html">
+                    <a class="nav-link" href="/swagger-ui.html" target="_blank">
                         <i class="bi bi-file-code"></i> Swagger
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/graphiql" target="_blank">
+                        <i class="bi bi-diagram-3"></i> GraphQL
+                    </a>
+                </li>
+
+                {# ---- SESIÓN: Login o Logout ---- #}
+                {% if isAuthenticated %}
+                    {# Usuario logueado: mostrar nombre + botón logout #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> {{ username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/app/perfil">
+                                <i class="bi bi-person"></i> Mi Perfil
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                {# Logout es un POST (no GET) por seguridad.
+                                   Incluimos el token CSRF como campo oculto.
+                                   Spring Security procesa el POST en /auth/logout #}
+                                <form action="/auth/logout" method="post" class="d-inline">
+                                    <input type="hidden" name="{{ csrfParamName }}" value="{{ csrfToken }}">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    {# Usuario anónimo: mostrar botón de login #}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light btn-sm ms-2" href="/auth/login">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

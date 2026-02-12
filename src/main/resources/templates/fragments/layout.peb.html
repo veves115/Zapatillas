@@ -1,20 +1,52 @@
+{# ============================================================================
+   LAYOUT - Plantilla base (esqueleto HTML)
+   ============================================================================
+   Esta es la plantilla "padre" de la que heredan TODAS las páginas.
+
+   ¿CÓMO FUNCIONA LA HERENCIA EN PEBBLE?
+   ========================================
+   1. Este archivo define la estructura HTML completa + bloques vacíos
+   2. Las páginas hijas hacen {% extends "fragments/layout" %} y rellenan los bloques
+   3. Solo se pueden rellenar bloques que estén definidos aquí con {% block nombre %}
+
+   BLOQUES DISPONIBLES:
+   - title: Título de la pestaña del navegador
+   - extra_css: CSS adicional específico de la página
+   - content: Contenido principal de la página
+   - extra_js: JavaScript adicional específico de la página
+
+   EJEMPLO DE USO EN UNA PÁGINA HIJA:
+   {% extends "fragments/layout" %}
+   {% block title %}Mi Página{% endblock %}
+   {% block content %}
+       <h1>Hola mundo</h1>
+   {% endblock %}
+   ============================================================================ #}
+
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    {% include "fragments/head.peb.html" %}
-</head>
-<body>
-    {% include "fragments/navbar.peb.html" %}
-    
-    <main class="container my-4">
+{% include "fragments/head" %}
+
+<body class="d-flex flex-column min-vh-100">
+    {# Navbar: barra de navegación (siempre visible) #}
+    {% include "fragments/navbar" %}
+
+    {# Contenido principal #}
+    <main class="container my-4 flex-grow-1">
+        {# Mensajes flash: éxito, error, info (se muestran una vez tras redirección) #}
+        {% include "fragments/messages" %}
+
+        {# Aquí cada página inyecta su contenido #}
         {% block content %}{% endblock %}
     </main>
-    
-    {% include "fragments/footer.peb.html" %}
-    
-    <!-- Bootstrap JS -->
+
+    {# Footer: pie de página (siempre visible) #}
+    {% include "fragments/footer" %}
+
+    {# Bootstrap JS (necesario para dropdowns, modals, tooltips, etc.) #}
     <script src="/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
-    
+
+    {# Bloque para JS adicional de cada página #}
     {% block extra_js %}{% endblock %}
 </body>
 </html>

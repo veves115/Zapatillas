@@ -1,4 +1,15 @@
-{% extends "fragments/layout.peb.html" %}
+{# ============================================================================
+   INDEX - Catálogo público de zapatillas
+   ============================================================================
+   Esta es la página principal del sitio. Muestra todas las zapatillas
+   en formato de tarjetas (cards) con paginación.
+
+   HERENCIA: Extiende el layout base → obtiene navbar, footer, head, etc.
+   CONTROLLER: ZonaPublicaController → /public/, /public/index
+   VARIABLE: page (Page<ZapatillaResponseDto> de Spring Data)
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
 
 {% block title %}Inicio - {{ appName | default('Zapatillas') }}{% endblock %}
 
@@ -12,7 +23,7 @@
     </div>
 </div>
 
-{% if page.content and page.content | length > 0 %}
+{% if page.content is not empty %}
     <div class="row g-4">
         {% for zapatilla in page.content %}
         <div class="col-md-6 col-lg-3">
@@ -23,12 +34,12 @@
                         <span class="badge bg-primary">{{ zapatilla.tipo }}</span>
                     </div>
                     <h6 class="text-muted mb-3">{{ zapatilla.modelo }}</h6>
-                    
+
                     <div class="mb-2">
                         <small class="text-muted">Código:</small>
                         <p class="mb-1"><code>{{ zapatilla.codigoProducto }}</code></p>
                     </div>
-                    
+
                     <div class="row mb-2">
                         <div class="col-6">
                             <small class="text-muted">Talla:</small>
@@ -39,18 +50,18 @@
                             <p class="mb-0"><strong>{{ zapatilla.color }}</strong></p>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <small class="text-muted">Precio:</small>
-                        <h4 class="text-primary mb-0">{{ zapatilla.precio }} €</h4>
+                        <h4 class="text-primary mb-0">{{ zapatilla.precio }} &euro;</h4>
                     </div>
-                    
+
                     <div class="d-flex justify-content-between align-items-center">
                         {% if zapatilla.stock > 10 %}
                             <span class="badge bg-success badge-stock">
                                 <i class="bi bi-check-circle"></i> En stock ({{ zapatilla.stock }})
                             </span>
-                        {% elif zapatilla.stock > 0 %}
+                        {% elseif zapatilla.stock > 0 %}
                             <span class="badge bg-warning badge-stock">
                                 <i class="bi bi-exclamation-triangle"></i> Poco stock ({{ zapatilla.stock }})
                             </span>
@@ -63,8 +74,8 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <small class="text-muted">
-                        <i class="bi bi-calendar"></i> 
-                        {% if zapatilla.createdAt %}
+                        <i class="bi bi-calendar"></i>
+                        {% if zapatilla.createdAt is not null %}
                             Creado: {{ zapatilla.createdAt }}
                         {% endif %}
                     </small>
@@ -73,71 +84,10 @@
         </div>
         {% endfor %}
     </div>
-    
-    <!-- Paginación -->
-    {% if page.totalPages > 1 %}
-    <nav aria-label="Paginación" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page.number > 0 %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page.number - 1 }}&size={{ page.size }}">
-                        <i class="bi bi-chevron-left"></i> Anterior
-                    </a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link"><i class="bi bi-chevron-left"></i> Anterior</span>
-                </li>
-            {% endif %}
-            
-            {% set maxPages = page.totalPages > 10 ? 10 : page.totalPages %}
-            {% set startPage = page.number > 5 ? (page.number - 5) : 0 %}
-            {% set endPage = startPage + maxPages - 1 %}
-            {% if endPage >= page.totalPages %}
-                {% set endPage = page.totalPages - 1 %}
-                {% set startPage = endPage - maxPages + 1 %}
-                {% if startPage < 0 %}
-                    {% set startPage = 0 %}
-                {% endif %}
-            {% endif %}
-            
-            {% for i in 0..(maxPages - 1) %}
-                {% set pageNum = startPage + i %}
-                {% if pageNum < page.totalPages %}
-                    {% if pageNum == page.number %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ pageNum + 1 }}</span>
-                        </li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ pageNum }}&size={{ page.size }}">{{ pageNum + 1 }}</a>
-                        </li>
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
-            
-            {% if page.number < (page.totalPages - 1) %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page.number + 1 }}&size={{ page.size }}">
-                        Siguiente <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">Siguiente <i class="bi bi-chevron-right"></i></span>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    
-    <div class="text-center mt-2">
-        <small class="text-muted">
-            Mostrando {{ page.numberOfElements }} de {{ page.totalElements }} zapatillas 
-            (Página {{ page.number + 1 }} de {{ page.totalPages }})
-        </small>
-    </div>
-    {% endif %}
-    
+
+    {# Paginación reutilizable: usa la variable "page" del model #}
+    {% include "fragments/pager" %}
+
 {% else %}
     <div class="alert alert-info text-center" role="alert">
         <i class="bi bi-info-circle fs-1"></i>
