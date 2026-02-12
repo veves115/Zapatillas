@@ -1,0 +1,130 @@
+{# ============================================================================
+   ADMIN DETALLE - Vista completa de una zapatilla
+   ============================================================================
+   CONTROLLER: AdminController → GET /admin/zapatillas/{id}
+   VARIABLE: zapatilla (ZapatillaResponseDto)
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
+
+{% block title %}Detalle - {{ zapatilla.marca }} {{ zapatilla.modelo }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/admin/zapatillas" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">
+            <i class="bi bi-bag-fill"></i> {{ zapatilla.marca }} - {{ zapatilla.modelo }}
+        </h3>
+        <span class="badge bg-light text-dark fs-6">ID: {{ zapatilla.id }}</span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {# Columna izquierda: datos principales #}
+            <div class="col-md-6">
+                <table class="table">
+                    <tr>
+                        <th class="text-muted" style="width: 40%">Marca</th>
+                        <td>{{ zapatilla.marca }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Modelo</th>
+                        <td>{{ zapatilla.modelo }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Código</th>
+                        <td><code>{{ zapatilla.codigoProducto }}</code></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Talla</th>
+                        <td>{{ zapatilla.talla }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Color</th>
+                        <td>{{ zapatilla.color }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Tipo</th>
+                        <td><span class="badge bg-primary">{{ zapatilla.tipo }}</span></td>
+                    </tr>
+                </table>
+            </div>
+
+            {# Columna derecha: precio, stock, metadatos #}
+            <div class="col-md-6">
+                <table class="table">
+                    <tr>
+                        <th class="text-muted" style="width: 40%">Precio</th>
+                        <td><strong class="text-primary fs-4">{{ zapatilla.precio }} &euro;</strong></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Stock</th>
+                        <td>
+                            {% if zapatilla.stock > 10 %}
+                                <span class="badge bg-success fs-6">{{ zapatilla.stock }} uds</span>
+                            {% elseif zapatilla.stock > 0 %}
+                                <span class="badge bg-warning text-dark fs-6">{{ zapatilla.stock }} uds</span>
+                            {% else %}
+                                <span class="badge bg-danger fs-6">Sin stock</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">UUID</th>
+                        <td><small class="text-muted font-monospace">{{ zapatilla.uuid }}</small></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Creado</th>
+                        <td>{{ zapatilla.createdAt }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Actualizado</th>
+                        <td>{{ zapatilla.updatedAt }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer d-flex gap-2">
+        <a href="/admin/zapatillas/{{ zapatilla.id }}/edit" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                data-bs-target="#deleteModalDetalle">
+            <i class="bi bi-trash"></i> Eliminar
+        </button>
+    </div>
+</div>
+
+{# Modal de confirmación de borrado #}
+<div class="modal fade" id="deleteModalDetalle" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Eliminar <strong>{{ zapatilla.marca }} {{ zapatilla.modelo }}</strong>?</p>
+                <p class="text-danger mb-0">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="/admin/zapatillas/{{ zapatilla.id }}/delete" method="post" class="d-inline">
+                    <input type="hidden" name="{{ csrfParamName }}" value="{{ csrfToken }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

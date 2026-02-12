@@ -1,0 +1,186 @@
+{# ============================================================================
+   ADMIN FORM - Formulario de creación/edición de zapatillas
+   ============================================================================
+   Este formulario se usa para DOS propósitos:
+   - CREAR: cuando isNew == true → POST a /admin/zapatillas/new
+   - EDITAR: cuando isNew == false → POST a /admin/zapatillas/{id}/edit
+
+   CONTROLLER: AdminController → GET/POST /admin/zapatillas/new y /{id}/edit
+
+   VARIABLES:
+   - zapatilla: ZapatillaCreateDto (crear) o ZapatillaResponseDto (editar)
+   - isNew: boolean que determina si estamos creando o editando
+   - zapatillaId: Long (solo al editar, para construir la URL del POST)
+   - csrfToken, csrfParamName: Para protección CSRF
+
+   ¿POR QUÉ UN SOLO FORMULARIO?
+   Porque los campos son los mismos. Solo cambia:
+   1. El título ("Nueva" vs "Editar")
+   2. La URL del action (POST)
+   3. Si los campos de marca/modelo están habilitados (al editar no se cambian)
+   4. Si los campos tienen valores previos
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
+
+{% block title %}
+    {% if isNew %}Nueva Zapatilla{% else %}Editar Zapatilla{% endif %}
+     - Admin
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/admin/zapatillas" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">
+            {% if isNew %}
+                <i class="bi bi-plus-circle"></i> Nueva Zapatilla
+            {% else %}
+                <i class="bi bi-pencil"></i> Editar Zapatilla
+            {% endif %}
+        </h3>
+    </div>
+    <div class="card-body">
+
+        {# Mensaje de error (si viene del controller tras una excepción) #}
+        {% if errorMessage is not null %}
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMessage }}
+        </div>
+        {% endif %}
+
+        {# ---- FORMULARIO ---- #}
+        {# El action cambia según si estamos creando o editando #}
+        <form method="post"
+              action="{% if isNew %}/admin/zapatillas/new{% else %}/admin/zapatillas/{{ zapatilla.id | default(zapatillaId) }}/edit{% endif %}">
+
+            {# Token CSRF obligatorio: sin esto, Spring rechaza el POST con 403 #}
+            <input type="hidden" name="{{ csrfParamName }}" value="{{ csrfToken }}">
+
+            <div class="row">
+                {# ---- COLUMNA IZQUIERDA ---- #}
+                <div class="col-md-6">
+                    {# Marca: obligatoria al crear, no editable al editar #}
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">
+                            Marca <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="marca" name="marca"
+                               value="{{ zapatilla.marca | default('') }}"
+                               {% if not isNew %}readonly{% endif %}
+                               required placeholder="Ej: Nike, Adidas...">
+                    </div>
+
+                    {# Modelo: obligatorio al crear, no editable al editar #}
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">
+                            Modelo <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="modelo" name="modelo"
+                               value="{{ zapatilla.modelo | default('') }}"
+                               {% if not isNew %}readonly{% endif %}
+                               required placeholder="Ej: Air Max 90">
+                    </div>
+
+                    {# Código de producto #}
+                    <div class="mb-3">
+                        <label for="codigoProducto" class="form-label">
+                            Código de Producto {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="text" class="form-control" id="codigoProducto" name="codigoProducto"
+                               value="{{ zapatilla.codigoProducto | default('') }}"
+                               {% if isNew %}required{% endif %}
+                               placeholder="Ej: NI1234KE"
+                               maxlength="10">
+                    </div>
+
+                    {# Color #}
+                    <div class="mb-3">
+                        <label for="color" class="form-label">
+                            Color {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="text" class="form-control" id="color" name="color"
+                               value="{{ zapatilla.color | default('') }}"
+                               {% if isNew %}required{% endif %}
+                               placeholder="Ej: Rojo, Negro...">
+                    </div>
+                </div>
+
+                {# ---- COLUMNA DERECHA ---- #}
+                <div class="col-md-6">
+                    {# Tipo: select con opciones fijas #}
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">
+                            Tipo {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <select class="form-select" id="tipo" name="tipo"
+                                {% if isNew %}required{% endif %}>
+                            <option value="">Seleccionar tipo...</option>
+                            {% for t in ["Running", "Basketball", "Training", "Casual", "Trail"] %}
+                                <option value="{{ t }}"
+                                    {% if zapatilla.tipo == t %}selected{% endif %}>{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {# Talla #}
+                    <div class="mb-3">
+                        <label for="talla" class="form-label">
+                            Talla {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="number" class="form-control" id="talla" name="talla"
+                               value="{{ zapatilla.talla | default('') }}"
+                               {% if isNew %}required{% endif %}
+                               step="0.5" min="20" max="52"
+                               placeholder="Ej: 42.0">
+                    </div>
+
+                    {# Precio #}
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">
+                            Precio (&euro;) {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="number" class="form-control" id="precio" name="precio"
+                               value="{{ zapatilla.precio | default('') }}"
+                               {% if isNew %}required{% endif %}
+                               step="0.01" min="0.01"
+                               placeholder="Ej: 89.99">
+                    </div>
+
+                    {# Stock #}
+                    <div class="mb-3">
+                        <label for="stock" class="form-label">
+                            Stock {% if isNew %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="number" class="form-control" id="stock" name="stock"
+                               value="{{ zapatilla.stock | default('') }}"
+                               {% if isNew %}required{% endif %}
+                               min="0"
+                               placeholder="Ej: 25">
+                    </div>
+                </div>
+            </div>
+
+            {# ---- BOTONES ---- #}
+            <hr>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    {% if isNew %}
+                        <i class="bi bi-plus-circle"></i> Crear Zapatilla
+                    {% else %}
+                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                    {% endif %}
+                </button>
+                <a href="/admin/zapatillas" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
