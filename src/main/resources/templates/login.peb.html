@@ -1,0 +1,106 @@
+{# ============================================================================
+   LOGIN - Página de inicio de sesión
+   ============================================================================
+   Formulario de login que envía credenciales a Spring Security.
+
+   ¿CÓMO FUNCIONA?
+   ================
+   - El formulario hace POST a /auth/login-post
+   - Spring Security intercepta ese POST y valida username/password
+   - Los campos DEBEN llamarse "username" y "password" (Spring Security los busca)
+   - El token CSRF se incluye como campo oculto (obligatorio con CSRF habilitado)
+
+   PARÁMETROS DE URL:
+   - ?error → Login fallido (credenciales incorrectas)
+   - ?logout → Logout exitoso (sesión cerrada)
+
+   ¿QUÉ ES EL TOKEN CSRF?
+   Es un token secreto que Spring genera por sesión. Se incluye en cada formulario
+   como campo oculto. Cuando llega el POST, Spring verifica que el token coincida.
+   Si alguien intenta hacer POST desde otro sitio web, no tendrá el token y fallará.
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
+
+{% block title %}Iniciar Sesión - {{ appName | default('Zapatillas') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow mt-5">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-bag-fill fs-1 text-primary"></i>
+                    <h3 class="mt-2">Iniciar Sesión</h3>
+                    <p class="text-muted">Accede a tu cuenta</p>
+                </div>
+
+                {# Mensaje de error: aparece si la URL tiene ?error #}
+                {% if request.getParameter("error") is not null %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Usuario o contraseña incorrectos. Inténtalo de nuevo.
+                </div>
+                {% endif %}
+
+                {# Mensaje de logout exitoso: aparece si la URL tiene ?logout #}
+                {% if request.getParameter("logout") is not null %}
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Has cerrado sesión correctamente.
+                </div>
+                {% endif %}
+
+                {# Formulario de login #}
+                {# action="/auth/login-post" → Spring Security procesa este POST #}
+                {# method="post" → NUNCA envíes contraseñas por GET #}
+                <form action="/auth/login-post" method="post">
+                    {# Token CSRF: campo oculto obligatorio para protección contra CSRF #}
+                    <input type="hidden" name="{{ csrfParamName }}" value="{{ csrfToken }}">
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="bi bi-person"></i> Usuario
+                        </label>
+                        {# name="username" es OBLIGATORIO - Spring Security busca este nombre #}
+                        <input type="text" class="form-control" id="username" name="username"
+                               placeholder="Introduce tu usuario" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock"></i> Contraseña
+                        </label>
+                        {# name="password" es OBLIGATORIO - Spring Security busca este nombre #}
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Introduce tu contraseña" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Entrar
+                        </button>
+                    </div>
+                </form>
+
+                <hr>
+
+                <div class="text-center">
+                    <a href="/public/" class="text-decoration-none">
+                        <i class="bi bi-arrow-left"></i> Volver al catálogo
+                    </a>
+                </div>
+
+                {# Info de usuarios de prueba (solo para desarrollo) #}
+                <div class="mt-3 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <strong>Usuarios de prueba:</strong><br>
+                        <i class="bi bi-shield-lock"></i> Admin: <code>admin</code> / <code>admin123</code><br>
+                        <i class="bi bi-person"></i> User: <code>user1</code> / <code>user123</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

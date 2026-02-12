@@ -1,0 +1,57 @@
+{# ============================================================================
+   ERROR - Página de error personalizada
+   ============================================================================
+   Muestra errores HTTP de forma amigable (404, 403, 500, etc.)
+
+   CONTROLLER: CustomErrorController → /error
+   VARIABLES:
+   - errorCode: Código HTTP (404, 403, 500...)
+   - errorTitle: Título descriptivo del error
+   - errorMessage: Mensaje explicativo para el usuario
+   - errorIcon: Clase CSS del icono Bootstrap
+   - isAuthenticated: Si el usuario está logueado (de GlobalControllerAdvice)
+   ============================================================================ #}
+
+{% extends "fragments/layout" %}
+
+{% block title %}Error {{ errorCode | default('') }} - {{ appName | default('Zapatillas') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center mt-5">
+        {# Icono grande del error #}
+        <i class="bi {{ errorIcon | default('bi-exclamation-triangle') }} text-danger" style="font-size: 5rem;"></i>
+
+        {# Código de error #}
+        <h1 class="display-1 fw-bold text-muted mt-3">{{ errorCode | default('Error') }}</h1>
+
+        {# Título del error #}
+        <h2 class="mb-3">{{ errorTitle | default('Ha ocurrido un error') }}</h2>
+
+        {# Mensaje descriptivo #}
+        <p class="lead text-muted mb-4">{{ errorMessage | default('Inténtalo de nuevo más tarde.') }}</p>
+
+        {# Botones de navegación #}
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="/public/" class="btn btn-primary btn-lg">
+                <i class="bi bi-house-door"></i> Ir al inicio
+            </a>
+
+            {% if isAuthenticated %}
+                <a href="/app/perfil" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-person"></i> Mi Perfil
+                </a>
+            {% else %}
+                <a href="/auth/login" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                </a>
+            {% endif %}
+        </div>
+
+        {# Mensaje de soporte #}
+        <p class="mt-4 text-muted small">
+            Si el problema persiste, contacta con el administrador del sistema.
+        </p>
+    </div>
+</div>
+{% endblock %}

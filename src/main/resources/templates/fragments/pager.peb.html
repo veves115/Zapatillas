@@ -1,0 +1,85 @@
+{# ============================================================================
+   PAGER - Controles de paginación reutilizables
+   ============================================================================
+   Genera los botones de paginación (Anterior, 1, 2, 3..., Siguiente).
+
+   REQUISITO: debe existir una variable "page" en el model que sea un
+   objeto Page de Spring Data (tiene: number, totalPages, size, etc.)
+
+   ¿CÓMO SE USA?
+   En cualquier plantilla que tenga paginación:
+     {% include "fragments/pager" %}
+
+   ¿CÓMO FUNCIONA LA PAGINACIÓN EN SPRING DATA?
+   - page.number: Página actual (empieza en 0)
+   - page.totalPages: Total de páginas
+   - page.size: Elementos por página
+   - page.totalElements: Total de elementos
+   - page.numberOfElements: Elementos en la página actual
+   ============================================================================ #}
+
+{% if page.totalPages > 1 %}
+<nav aria-label="Paginación" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {# Botón "Anterior": deshabilitado si estamos en la primera página #}
+        {% if page.number > 0 %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page.number - 1 }}&size={{ page.size }}">
+                    <i class="bi bi-chevron-left"></i> Anterior
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-left"></i> Anterior</span>
+            </li>
+        {% endif %}
+
+        {# Números de página: mostramos máximo 10 para no desbordar #}
+        {% set maxPages = page.totalPages > 10 ? 10 : page.totalPages %}
+        {% set startPage = page.number > 5 ? (page.number - 5) : 0 %}
+        {% set endPage = startPage + maxPages - 1 %}
+        {% if endPage >= page.totalPages %}
+            {% set endPage = page.totalPages - 1 %}
+            {% set startPage = endPage - maxPages + 1 %}
+            {% if startPage < 0 %}
+                {% set startPage = 0 %}
+            {% endif %}
+        {% endif %}
+
+        {% for i in 0..(maxPages - 1) %}
+            {% set pageNum = startPage + i %}
+            {% if pageNum < page.totalPages %}
+                {% if pageNum == page.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ pageNum + 1 }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pageNum }}&size={{ page.size }}">{{ pageNum + 1 }}</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {# Botón "Siguiente": deshabilitado si estamos en la última página #}
+        {% if page.number < (page.totalPages - 1) %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page.number + 1 }}&size={{ page.size }}">
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Siguiente <i class="bi bi-chevron-right"></i></span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<div class="text-center mt-2">
+    <small class="text-muted">
+        Mostrando {{ page.numberOfElements }} de {{ page.totalElements }} elementos
+        (Página {{ page.number + 1 }} de {{ page.totalPages }})
+    </small>
+</div>
+{% endif %}

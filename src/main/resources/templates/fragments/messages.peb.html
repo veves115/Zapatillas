@@ -1,0 +1,36 @@
+{# ============================================================================
+   MESSAGES - Mensajes flash (éxito, error, info)
+   ============================================================================
+   Muestra mensajes temporales que los controladores envían tras una acción.
+
+   ¿CÓMO FUNCIONA?
+   En el controller haces:
+     redirectAttributes.addFlashAttribute("successMessage", "Zapatilla creada");
+   Después de la redirección, este fragment lo muestra una vez y desaparece.
+
+   VARIABLES QUE BUSCA:
+   - successMessage → Alerta verde (éxito)
+   - errorMessage   → Alerta roja (error)
+   - infoMessage    → Alerta azul (información)
+   ============================================================================ #}
+
+{% if successMessage is not null %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i> {{ successMessage }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+</div>
+{% endif %}
+
+{% if errorMessage is not null %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMessage }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+</div>
+{% endif %}
+
+{% if infoMessage is not null %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    <i class="bi bi-info-circle-fill"></i> {{ infoMessage }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+</div>
+{% endif %}
